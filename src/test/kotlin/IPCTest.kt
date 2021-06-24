@@ -19,6 +19,8 @@
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.listener.IPCListener
+import dev.cbyrne.kdiscordipc.packet.Packet
+import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
 import dev.cbyrne.kdiscordipc.presence.presence
 
 object IPCTest {
@@ -42,6 +44,15 @@ object IPCTest {
             override fun onReadyEvent(event: DiscordEvent.Ready) {
                 println("[IPCTest] Ready! User: ${event.user}")
                 // You could also set the presence in here if you wish
+            }
+
+            /**
+             * Fired when a packet is received from the client
+             */
+            override fun onPacket(packet: Packet) {
+                if (packet is SetActivityPacket) {
+                    println("[IPCTest] Received echoed SetActivity packet: ${packet.presence}")
+                }
             }
         }
 

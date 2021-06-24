@@ -20,6 +20,7 @@ package dev.cbyrne.kdiscordipc.listener
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
+import dev.cbyrne.kdiscordipc.packet.Packet
 
 /**
  * A listener used to listen for events dispatched by [DiscordIPC]
@@ -27,7 +28,7 @@ import dev.cbyrne.kdiscordipc.event.DiscordEvent
  */
 interface IPCListener {
     /**
-     * Fired when [DiscordEvent.Ready] is received by the client
+     * Fired when [DiscordEvent.Ready] is received from the client
      * @param event A class containing all relevant info: user info, config, environment, etc.
      */
     fun onReadyEvent(event: DiscordEvent.Ready) {}
@@ -36,4 +37,9 @@ interface IPCListener {
      * Fired when we are disconnected from the client
      */
     fun onDisconnect(reason: String?) {}
+
+    /**
+     * Fired when a packet is received from the client
+     */
+    fun onPacket(packet: Packet) {}
 }

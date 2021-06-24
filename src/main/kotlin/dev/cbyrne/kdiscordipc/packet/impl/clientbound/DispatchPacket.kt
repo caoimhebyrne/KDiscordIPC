@@ -29,7 +29,7 @@ import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
  * @see DiscordIPC.onPacket
  */
 @Suppress("UNCHECKED_CAST")
-class DispatchPacket(packetData: Map<String, Any>) : Packet {
+class DispatchPacket(val packetData: Map<String, Any>) : Packet {
     override val opcode = 1
 
     val event = packetData["evt"] as String?

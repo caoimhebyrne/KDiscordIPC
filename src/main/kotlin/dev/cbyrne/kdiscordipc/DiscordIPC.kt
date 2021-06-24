@@ -138,15 +138,19 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
     override fun onPacket(packet: Packet) {
         when (packet) {
             is DispatchPacket -> {
-                val event = DiscordEvent.from(packet.event ?: return, packet.eventData ?: mapOf())
-
-                when (event) {
-                    is DiscordEvent.Ready -> {
-                        listener?.onReadyEvent(event)
-                        this.onReadyEvent(event)
+                if (packet.event != null) {
+                    when (val event = DiscordEvent.from(packet.event, packet.eventData ?: mapOf())) {
+                        is DiscordEvent.Ready -> {
+                            listener?.onReadyEvent(event)
+                            this.onReadyEvent(event)
+                        }
                     }
+                } else if (packet.packetData["cmd"]?.equals("SET_ACTIVITY") == true) {
+                    listener?.onPacket(SetActivityPacket(DiscordPresence.fromNative(packet.eventData ?: mapOf())))
                 }
             }
         }
+
+        listener?.onPacket(packet)
     }
 }

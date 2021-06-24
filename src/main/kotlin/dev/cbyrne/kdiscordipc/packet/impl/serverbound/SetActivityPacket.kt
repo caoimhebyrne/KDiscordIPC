@@ -29,7 +29,7 @@ import java.lang.management.ManagementFactory
  * @see DiscordPresence
  * @see DiscordIPC.presence
  */
-class SetActivityPacket(private val presence: DiscordPresence?) : Packet {
+class SetActivityPacket(val presence: DiscordPresence?) : Packet {
     override val opcode = 0x01
 
     override fun getData() =

@@ -64,6 +64,34 @@ data class DiscordPresence(
         ),
         "instance" to instance
     )
+
+    companion object {
+        fun fromNative(native: Map<String, Any>) = presence {
+            val timestamps = native["timestamps"] as Map<*, *>?
+            val assets = native["assets"] as Map<*, *>?
+            val party = native["party"] as Map<*, *>?
+            val secrets = native["secrets"] as Map<*, *>?
+
+            state = native["state"]?.toString()
+            details = native["details"]?.toString()
+
+            startTimestamp = (timestamps?.get("start") as Double?)?.toLong()
+            endTimestamp = (timestamps?.get("end") as Double?)?.toLong()
+
+            largeImageKey = assets?.get("large_image")?.toString()
+            smallImageKey = assets?.get("small_image")?.toString()
+            largeImageText = assets?.get("large_text")?.toString()
+            smallImageText = assets?.get("small_text")?.toString()
+
+            partyId = party?.get("id")?.toString()
+
+            joinSecret = secrets?.get("join")?.toString()
+            spectateSecret = secrets?.get("spectate")?.toString()
+            matchSecret = secrets?.get("match")?.toString()
+
+            instance = native["instance"] as Boolean? == true
+        }
+    }
 }
 
 fun presence(init: DiscordPresence.() -> Unit) = DiscordPresence().apply(init)
