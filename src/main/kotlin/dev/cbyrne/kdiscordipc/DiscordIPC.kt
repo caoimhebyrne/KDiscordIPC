@@ -70,7 +70,7 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
      */
     var presence: DiscordPresence? = null
         set(value) {
-            field = if (socket.isConnected) {
+            field = if (socket.isConnected && value != null) {
                 sendPacket(SetActivityPacket(value))
                 null
             } else {
@@ -133,7 +133,6 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
 
     /**
      * Fired when a packet is received and decoded by [DiscordSocket]
-     *
      * @param packet The packet instance
      */
     override fun onPacket(packet: Packet) {
