@@ -48,13 +48,13 @@ data class DiscordPresence(
         "details" to details,
         "timestamps" to mapOf("start" to startTimestamp, "end" to endTimestamp),
         "assets" to mapOf(
-            "large_image" to (largeImageKey ?: "null"),
-            "large_text" to (largeImageText ?: "null"),
-            "small_image" to (smallImageKey ?: "null"),
-            "small_text" to (smallImageText ?: "null")
+            "large_image" to largeImageKey,
+            "large_text" to largeImageText,
+            "small_image" to smallImageKey,
+            "small_text" to smallImageText
         ),
         "party" to if (partyId == null) null else mapOf(
-            "id" to (partyId ?: "null"),
+            "id" to partyId,
             "size" to arrayOf(partySize, partyMax)
         ),
         "secrets" to mapOf(

@@ -34,5 +34,5 @@ class DispatchPacket(val packetData: Map<String, Any>) : Packet {
     override val direction = PacketDirection.BOTH
 
     val event = packetData["evt"] as String?
-    val eventData = packetData["data"] as Map<String, Any>?
+    val eventData = packetData["data"] as Map<String, Any>
 }

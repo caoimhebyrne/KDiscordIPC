@@ -47,6 +47,13 @@ object IPCTest {
             }
 
             /**
+             * Fired when we are disconnected from the client
+             */
+            override fun onDisconnect(reason: String) {
+                println("[IPCTest] Disconnected from client! Reason: $reason")
+            }
+
+            /**
              * Fired when a packet is received from the client
              */
             override fun onPacket(packet: Packet) {

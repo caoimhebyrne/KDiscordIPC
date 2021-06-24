@@ -34,21 +34,26 @@ import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
  */
 sealed class DiscordEvent {
     companion object {
-        fun from(name: String, data: Map<String, Any>): DiscordEvent {
-            return when (name) {
+        fun from(name: String, data: Map<String, Any>) =
+            when (name) {
                 "READY" -> {
                     val gatewayVersion = data["v"] as Double?
-                    val user: DiscordUser? = data["user"]?.toJson().fromJson()
-                    val config: DiscordConfig? = data["config"]?.toJson().fromJson()
+                    val user: DiscordUser? = data["user"]?.toJson()?.fromJson()
+                    val config: DiscordConfig? = data["config"]?.toJson()?.fromJson()
 
                     if (gatewayVersion == null || user == null || config == null)
                         throw IllegalStateException("Failed to parse ready event with data $data")
 
                     Ready(gatewayVersion.toInt(), user, config)
                 }
+                "ERROR" -> {
+                    val code = data["code"] as? Int ?: 0
+                    val message = data["message"].toString()
+
+                    Error(code, message)
+                }
                 else -> throw IllegalStateException("Unknown event: $name! Data: $data")
             }
-        }
     }
 
     /**
@@ -58,4 +63,9 @@ sealed class DiscordEvent {
      * @see HandshakePacket
      */
     data class Ready(val gatewayVersion: Int, val user: DiscordUser, val config: DiscordConfig) : DiscordEvent()
+
+    /**
+     * A class representing the ERROR event
+     */
+    data class Error(val code: Int, val message: String) : DiscordEvent()
 }

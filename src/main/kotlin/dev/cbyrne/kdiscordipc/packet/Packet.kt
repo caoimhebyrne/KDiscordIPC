@@ -31,7 +31,6 @@ interface Packet {
     val opcode: Int
     val direction: PacketDirection
 
-    fun getData(): Map<String, Any>? {
-        return mapOf()
-    }
+    val data: Map<String, Any>
+        get() = mapOf()
 }

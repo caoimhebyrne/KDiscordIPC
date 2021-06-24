@@ -21,15 +21,9 @@ package dev.cbyrne.kdiscordipc.gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 
-inline fun <reified T : Any> String?.fromJson(): T? = this?.let {
-    try {
-        val type = object : TypeToken<T>() {}.type
-        return GsonBuilder().setLenient().serializeNulls().create().fromJson(this, type)
-    } catch (t: Throwable) {
-        t.printStackTrace()
-        return null
-    }
-}
+val gson = GsonBuilder().setLenient().serializeNulls().create()
+
+inline fun <reified T : Any> String.fromJson(): T = gson.fromJson(this, object : TypeToken<T>() {}.type)
 
 fun Any.toJson(): String? = this.let {
     runCatching {

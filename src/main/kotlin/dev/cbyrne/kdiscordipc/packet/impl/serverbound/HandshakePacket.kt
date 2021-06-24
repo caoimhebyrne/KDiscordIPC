@@ -27,9 +27,8 @@ import dev.cbyrne.kdiscordipc.packet.PacketDirection
  *
  * @see DiscordIPC.connect
  */
-class HandshakePacket(private val clientId: String, private val version: Int = 1) : Packet {
+class HandshakePacket(clientId: String, version: Int = 1) : Packet {
     override val opcode = 0x00
     override val direction = PacketDirection.SERVERBOUND
-
-    override fun getData() = mapOf("v" to version, "client_id" to clientId)
+    override val data = mapOf("v" to version, "client_id" to clientId)
 }

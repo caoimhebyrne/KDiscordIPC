@@ -30,10 +30,12 @@ class ByteArrayToRawPacketDecoder {
      * Decodes a [ByteArray] to a [RawPacket]
      * @param array The bytes to decode
      */
-    fun decode(array: ByteArray): RawPacket {
+    fun decode(array: ByteArray): RawPacket? {
+        if (array.isEmpty()) return null
+
         val opcode = Integer.reverseBytes(ByteBuffer.wrap(array.take(8).toByteArray()).int)
         val data = array.takeLast(array.size - 8).toByteArray().decodeToString()
 
-        return RawPacket(opcode, data.fromJson() ?: mapOf())
+        return RawPacket(opcode, data.fromJson())
     }
 }

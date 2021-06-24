@@ -76,8 +76,6 @@ class DiscordSocket {
     fun connect() {
         socket.connect(AFUNIXSocketAddress(getIpcFile(0)))
 
-        println("[DiscordSocket] Connected!")
-
         thread(start = true) {
             while (isConnected) {
                 listener?.onPacket(readPacket())
@@ -106,8 +104,12 @@ class DiscordSocket {
         with(socket.outputStream) {
             val encodedPacket = encoder.encode(packet)
 
-            println("[DiscordSocket] Sending packet with opcode ${packet.opcode}")
-            write(encodedPacket)
+            try {
+                write(encodedPacket)
+            } catch (t: Throwable) {
+                disconnect()
+                listener?.onSocketClosed(t.localizedMessage)
+            }
         }
     }
 
@@ -117,15 +119,22 @@ class DiscordSocket {
      * @see ByteArrayToRawPacketDecoder
      */
     @Suppress("StatementWithEmptyBody")
-    private fun readRawPacket(): RawPacket {
+    private fun readRawPacket(): RawPacket? {
         if (!isConnected) throw IllegalStateException("You must connect to the socket before reading packets")
 
         with(socket.inputStream) {
             while (available() == 0) {
             }
 
-            val bytes = readNBytes(available())
-            return decoder.decode(bytes)
+            try {
+                val bytes = readNBytes(available())
+                return decoder.decode(bytes)
+            } catch (t: Throwable) {
+                disconnect()
+                listener?.onSocketClosed(t.localizedMessage)
+
+                return decoder.decode(byteArrayOf())
+            }
         }
     }
 
@@ -137,7 +146,7 @@ class DiscordSocket {
      * @see readRawPacket
      */
     private fun readPacket(): Packet {
-        val rawPacket = readRawPacket()
+        val rawPacket = readRawPacket() ?: throw IllegalStateException("Failed to read raw packet")
         return packetDecoder.decode(rawPacket)
             ?: throw IllegalStateException("Received unknown packet ${rawPacket.opcode} with data ${rawPacket.data}")
     }

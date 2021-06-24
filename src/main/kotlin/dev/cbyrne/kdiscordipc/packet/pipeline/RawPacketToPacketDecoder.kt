@@ -31,10 +31,9 @@ class RawPacketToPacketDecoder {
      * Converts a [RawPacket] to a [Packet]
      * @returns a [Packet] instance if there is a wrapper available for this [RawPacket], otherwise null
      */
-    fun decode(packet: RawPacket): Packet? {
-        return when (packet.opcode) {
+    fun decode(packet: RawPacket) =
+        when (packet.opcode) {
             1 -> DispatchPacket(packet.data)
             else -> null
         }
-    }
 }

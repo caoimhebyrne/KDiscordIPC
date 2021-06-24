@@ -36,7 +36,7 @@ interface IPCListener {
     /**
      * Fired when we are disconnected from the client
      */
-    fun onDisconnect(reason: String?) {}
+    fun onDisconnect(reason: String) {}
 
     /**
      * Fired when a packet is received from the client

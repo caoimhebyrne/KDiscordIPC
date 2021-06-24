@@ -30,19 +30,19 @@ import java.util.*
 class PacketToByteArrayEncoder {
     /**
      * Encodes a [Packet] to a [ByteArray]
-     * Alongside the [Packet.getData] provided, a "nonce" key will be set with a random [UUID]
+     * Alongside the [Packet.data] provided, a "nonce" key will be set with a random [UUID]
      *
      * @param packet The packet to encode
      */
     fun encode(packet: Packet): ByteArray {
-        val packetData = packet.getData()?.toMutableMap()
-        packetData?.set("nonce", UUID.randomUUID().toString())
+        val packetData = packet.data.toMutableMap()
+        packetData["nonce"] = UUID.randomUUID().toString()
 
-        val data = (packetData?.toJson() ?: "null").toByteArray()
-        val buffer = ByteBuffer.allocate(data.size + 2 * Integer.BYTES)
+        val data = packetData.toJson()?.toByteArray()
+        val buffer = ByteBuffer.allocate((data?.size ?: 0) + 2 * Integer.BYTES)
 
         buffer.putInt(Integer.reverseBytes(packet.opcode))
-        buffer.putInt(Integer.reverseBytes(data.size))
+        buffer.putInt(Integer.reverseBytes(data?.size ?: 0))
         buffer.put(data)
 
         return buffer.array()

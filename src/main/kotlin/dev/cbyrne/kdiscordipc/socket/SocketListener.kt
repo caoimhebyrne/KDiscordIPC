@@ -37,4 +37,12 @@ interface SocketListener {
      * @see DiscordIPC
      */
     fun onPacket(packet: Packet)
+
+
+    /**
+     * Fired when the socket is closed
+     *
+     * @param message The reason for the socket being closed
+     */
+    fun onSocketClosed(message: String)
 }

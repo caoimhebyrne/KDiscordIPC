@@ -31,14 +31,12 @@ import java.lang.management.ManagementFactory
  * @see DiscordIPC.presence
  */
 class SetActivityPacket(val presence: DiscordPresence?) : Packet {
+    private val processId = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
+
     override val opcode = 0x01
     override val direction = PacketDirection.BOTH
-
-    override fun getData() =
-        mapOf(
-            "cmd" to "SET_ACTIVITY",
-            "args" to mapOf("pid" to getProcessId(), "activity" to presence?.toNativeJson())
-        )
-
-    private fun getProcessId() = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
+    override val data = mapOf(
+        "cmd" to "SET_ACTIVITY",
+        "args" to mapOf("pid" to processId, "activity" to presence?.toNativeJson())
+    )
 }

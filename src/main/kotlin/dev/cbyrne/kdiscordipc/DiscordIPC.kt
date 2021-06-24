@@ -134,7 +134,6 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
     override fun onReadyEvent(event: DiscordEvent.Ready) {
         presence?.let {
             sendPacket(SetActivityPacket(it))
-            presence = null
         }
     }
 
@@ -146,18 +145,33 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
         when (packet) {
             is DispatchPacket -> {
                 if (packet.event != null) {
-                    when (val event = DiscordEvent.from(packet.event, packet.eventData ?: mapOf())) {
+                    val event = DiscordEvent.from(packet.event, packet.eventData)
+
+                    when (event) {
                         is DiscordEvent.Ready -> {
                             listener?.onReadyEvent(event)
                             this.onReadyEvent(event)
                         }
+                        is DiscordEvent.Error -> {
+                            socket.disconnect()
+                            listener?.onDisconnect(event.message)
+                        }
                     }
                 } else if (packet.packetData["cmd"]?.equals("SET_ACTIVITY") == true) {
-                    listener?.onPacket(SetActivityPacket(DiscordPresence.fromNative(packet.eventData ?: mapOf())))
+                    listener?.onPacket(SetActivityPacket(DiscordPresence.fromNative(packet.eventData)))
                 }
             }
         }
 
         listener?.onPacket(packet)
+    }
+
+    /**
+     * Fired when the socket is closed
+     *
+     * @param message The reason for the socket being closed
+     */
+    override fun onSocketClosed(message: String) {
+        listener?.onDisconnect(message)
     }
 }
