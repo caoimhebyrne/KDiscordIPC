@@ -38,7 +38,6 @@ interface SocketListener {
      */
     fun onPacket(packet: Packet)
 
-
     /**
      * Fired when the socket is closed
      *

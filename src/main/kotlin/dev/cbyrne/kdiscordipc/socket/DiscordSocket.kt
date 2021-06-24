@@ -126,14 +126,14 @@ class DiscordSocket {
             while (available() == 0) {
             }
 
-            try {
+            return try {
                 val bytes = readNBytes(available())
-                return decoder.decode(bytes)
+                decoder.decode(bytes)
             } catch (t: Throwable) {
                 disconnect()
                 listener?.onSocketClosed(t.localizedMessage)
 
-                return decoder.decode(byteArrayOf())
+                null
             }
         }
     }

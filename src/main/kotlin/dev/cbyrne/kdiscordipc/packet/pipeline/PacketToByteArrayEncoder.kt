@@ -38,11 +38,11 @@ class PacketToByteArrayEncoder {
         val packetData = packet.data.toMutableMap()
         packetData["nonce"] = UUID.randomUUID().toString()
 
-        val data = packetData.toJson()?.toByteArray()
-        val buffer = ByteBuffer.allocate((data?.size ?: 0) + 2 * Integer.BYTES)
+        val data = (packetData.toJson() ?: "null").toByteArray()
+        val buffer = ByteBuffer.allocate(data.size + 2 * Integer.BYTES)
 
         buffer.putInt(Integer.reverseBytes(packet.opcode))
-        buffer.putInt(Integer.reverseBytes(data?.size ?: 0))
+        buffer.putInt(Integer.reverseBytes(data.size))
         buffer.put(data)
 
         return buffer.array()

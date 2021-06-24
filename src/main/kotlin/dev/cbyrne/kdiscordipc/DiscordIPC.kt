@@ -135,6 +135,8 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
         presence?.let {
             sendPacket(SetActivityPacket(it))
         }
+
+        presence = null
     }
 
     /**
