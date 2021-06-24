@@ -20,7 +20,7 @@ import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.listener.IPCListener
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
+import dev.cbyrne.kdiscordipc.packet.impl.SetActivityPacket
 import dev.cbyrne.kdiscordipc.presence.presence
 
 object IPCTest {

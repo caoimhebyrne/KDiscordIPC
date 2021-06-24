@@ -18,7 +18,7 @@
 
 package dev.cbyrne.kdiscordipc.packet
 
-import dev.cbyrne.kdiscordipc.packet.impl.clientbound.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
 import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 
 /**
@@ -29,6 +29,7 @@ import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
  */
 interface Packet {
     val opcode: Int
+    val direction: PacketDirection
 
     fun getData(): Map<String, Any>? {
         return mapOf()

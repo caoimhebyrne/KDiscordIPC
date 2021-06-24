@@ -16,22 +16,14 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl.clientbound
-
-import dev.cbyrne.kdiscordipc.DiscordIPC
-import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
+package dev.cbyrne.kdiscordipc.packet
 
 /**
- * A packet which is received by the client when an event is being dispatched
- * This packet could also be mistakenly parsed as a [SetActivityPacket], as the client will relay our packets back to us after the initial handshake.
+ * An enum representing the direction of a specific packet
  *
- * @see DiscordIPC.onPacket
  */
-@Suppress("UNCHECKED_CAST")
-class DispatchPacket(val packetData: Map<String, Any>) : Packet {
-    override val opcode = 1
-
-    val event = packetData["evt"] as String?
-    val eventData = packetData["data"] as Map<String, Any>?
+enum class PacketDirection {
+    CLIENTBOUND,
+    SERVERBOUND,
+    BOTH
 }

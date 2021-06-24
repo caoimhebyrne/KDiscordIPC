@@ -20,7 +20,7 @@ package dev.cbyrne.kdiscordipc.packet.pipeline
 
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.RawPacket
-import dev.cbyrne.kdiscordipc.packet.impl.clientbound.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
 
 /**
  * A class which converts a [RawPacket] to a [Packet]

@@ -16,27 +16,23 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl.serverbound
+package dev.cbyrne.kdiscordipc.packet.impl
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.presence.DiscordPresence
-import java.lang.management.ManagementFactory
+import dev.cbyrne.kdiscordipc.packet.PacketDirection
 
 /**
- * The packet which will instruct the client to update the user's activity / presence
+ * A packet which is received by the client when an event is being dispatched
+ * This packet could also be mistakenly parsed as a [SetActivityPacket], as the client will relay our packets back to us after the initial handshake.
  *
- * @see DiscordPresence
- * @see DiscordIPC.presence
+ * @see DiscordIPC.onPacket
  */
-class SetActivityPacket(val presence: DiscordPresence?) : Packet {
-    override val opcode = 0x01
+@Suppress("UNCHECKED_CAST")
+class DispatchPacket(val packetData: Map<String, Any>) : Packet {
+    override val opcode = 1
+    override val direction = PacketDirection.BOTH
 
-    override fun getData() =
-        mapOf(
-            "cmd" to "SET_ACTIVITY",
-            "args" to mapOf("pid" to getProcessId(), "activity" to presence?.toNativeJson())
-        )
-
-    private fun getProcessId() = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
+    val event = packetData["evt"] as String?
+    val eventData = packetData["data"] as Map<String, Any>?
 }

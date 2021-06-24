@@ -16,20 +16,29 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl.serverbound
+package dev.cbyrne.kdiscordipc.packet.impl
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.PacketDirection
+import dev.cbyrne.kdiscordipc.presence.DiscordPresence
+import java.lang.management.ManagementFactory
 
 /**
- * The packet which will start the connection between the client and our socket
+ * The packet which will instruct the client to update the user's activity / presence
  *
- * @see DiscordIPC.connect
+ * @see DiscordPresence
+ * @see DiscordIPC.presence
  */
-class HandshakePacket(private val clientId: String, private val version: Int = 1) : Packet {
-    override val opcode = 0x00
-    override val direction = PacketDirection.SERVERBOUND
+class SetActivityPacket(val presence: DiscordPresence?) : Packet {
+    override val opcode = 0x01
+    override val direction = PacketDirection.BOTH
 
-    override fun getData() = mapOf("v" to version, "client_id" to clientId)
+    override fun getData() =
+        mapOf(
+            "cmd" to "SET_ACTIVITY",
+            "args" to mapOf("pid" to getProcessId(), "activity" to presence?.toNativeJson())
+        )
+
+    private fun getProcessId() = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
 }

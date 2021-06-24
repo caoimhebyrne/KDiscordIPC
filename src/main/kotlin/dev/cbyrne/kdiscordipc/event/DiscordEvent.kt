@@ -23,7 +23,7 @@ import dev.cbyrne.kdiscordipc.gson.fromJson
 import dev.cbyrne.kdiscordipc.gson.toJson
 import dev.cbyrne.kdiscordipc.objects.DiscordConfig
 import dev.cbyrne.kdiscordipc.objects.DiscordUser
-import dev.cbyrne.kdiscordipc.packet.impl.clientbound.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
 import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 
 /**

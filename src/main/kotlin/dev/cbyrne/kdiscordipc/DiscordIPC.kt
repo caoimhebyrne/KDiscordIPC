@@ -21,9 +21,10 @@ package dev.cbyrne.kdiscordipc
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.listener.IPCListener
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.impl.clientbound.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.PacketDirection
+import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.SetActivityPacket
 import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
-import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
 import dev.cbyrne.kdiscordipc.presence.DiscordPresence
 import dev.cbyrne.kdiscordipc.socket.DiscordSocket
 import dev.cbyrne.kdiscordipc.socket.SocketListener
@@ -116,9 +117,15 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
      * @see HandshakePacket
      * @param packet The packet to send
      *
-     * @throws IllegalStateException If the socket is not connected yet
+     * @throws IllegalStateException If the socket is not connected yet, or if the packet is of the wrong [PacketDirection]
+     * @see PacketDirection
      */
-    fun sendPacket(packet: Packet) = socket.send(packet)
+    fun sendPacket(packet: Packet) {
+        if (packet.direction == PacketDirection.CLIENTBOUND)
+            throw IllegalStateException("You can not send a clientbound packet to the server!")
+
+        socket.send(packet)
+    }
 
     /**
      * Fired when [DiscordEvent.Ready] is received by the client
