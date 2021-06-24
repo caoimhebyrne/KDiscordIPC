@@ -5,7 +5,7 @@ A Kotlin library for interacting with Discord via IPC
 ## Features
 
 - Fully documented codebase
-- macOS and Linux (including M1 Macs, Windows support is coming soon)
+- macOS and Linux support (including M1 Macs, Windows support is coming soon)
 - Easy to use Kotlin DSL for building presence objects
 
 ## Installation
