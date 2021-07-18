@@ -20,16 +20,18 @@
 
 package dev.cbyrne.kdiscordipc.socket
 
+import dev.cbyrne.kdiscordipc.exceptions.SocketConnectionException
+import dev.cbyrne.kdiscordipc.exceptions.SocketDisconnectionException
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.RawPacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.ByteArrayToRawPacketDecoder
 import dev.cbyrne.kdiscordipc.packet.pipeline.PacketToByteArrayEncoder
 import dev.cbyrne.kdiscordipc.packet.pipeline.RawPacketToPacketDecoder
+import dev.cbyrne.kdiscordipc.socket.impl.UnixSystemSocket
+import dev.cbyrne.kdiscordipc.socket.impl.WindowsSystemSocket
 import org.newsclub.net.unix.AFUNIXSocket
-import org.newsclub.net.unix.AFUNIXSocketAddress
 import java.io.File
 import java.io.IOException
-import java.nio.channels.IllegalBlockingModeException
 import kotlin.concurrent.thread
 
 /**
@@ -39,10 +41,20 @@ import kotlin.concurrent.thread
  * @see SocketListener
  */
 class DiscordSocket {
-    private val socket = AFUNIXSocket.newInstance()
+    // TODO: Maybe do something better
+    private val socket: SystemSocket =
+        if (System.getProperty("os.name").contains("win", true)) {
+            WindowsSystemSocket()
+        } else {
+            UnixSystemSocket()
+        }
+
     private val encoder = PacketToByteArrayEncoder()
     private val decoder = ByteArrayToRawPacketDecoder()
     private val packetDecoder = RawPacketToPacketDecoder()
+
+    val isConnected: Boolean
+        get() = socket.isConnected
 
     /**
      * The listener which will handle packets once they are decoded
@@ -53,28 +65,14 @@ class DiscordSocket {
     var listener: SocketListener? = null
 
     /**
-     * Checks if the socket is connected and if it is not closed
-     *
-     * @see [AFUNIXSocket.isConnected]
-     * @see [AFUNIXSocket.isClosed]
-     */
-    val isConnected: Boolean
-        get() = socket.isConnected && !socket.isClosed
-
-    /**
      * Connects to the Discord IPC socket
      * This method starts a thread which will constantly attempt to read for packets whilst the socket is still connected
      *
-     * @throws IllegalBlockingModeException If this socket has an associated channel, and the channel is in non-blocking mode
-     * @throws IllegalArgumentException If the socket address is null or is a SocketAddress subclass not supported by this socket
-     * @throws IOException If an error has occurred during the connection
-     *
-     * @see [readRawPacket]
-     * @see [AFUNIXSocket.connect]
+     * @throws SocketConnectionException If an error has occurred during the connection
      */
-    @Throws(IllegalBlockingModeException::class, IllegalArgumentException::class, IOException::class)
+    @Throws(SocketConnectionException::class)
     fun connect() {
-        socket.connect(AFUNIXSocketAddress(getIpcFile(0)))
+        socket.connect(getIpcFile(0))
 
         thread(start = true) {
             while (isConnected) {
@@ -85,12 +83,13 @@ class DiscordSocket {
 
     /**
      * Closes the connection to the unix socket
-     * @throws IOException If an error occurs when closing the connection to this socket
      *
-     * @see [AFUNIXSocket.close]
+     * @throws IllegalStateException If the socket is already closed
+     * @throws SocketDisconnectionException If an error has occurred when closing this socket
      */
-    @Throws(IOException::class)
-    fun disconnect() = socket.close()
+    @Throws(IllegalStateException::class, SocketDisconnectionException::class)
+    fun disconnect() = socket.disconnect()
+
 
     /**
      * Sends a [Packet] tot the connected [AFUNIXSocket] socket
@@ -99,9 +98,9 @@ class DiscordSocket {
      * @throws IllegalStateException If the socket is not connected yet
      */
     fun send(packet: Packet) {
-        if (!isConnected) throw IllegalStateException("You must connect to the socket before sending packets")
+        if (!socket.isConnected) throw IllegalStateException("You must connect to the socket before sending packets")
 
-        with(socket.outputStream) {
+        socket.outputStream?.apply {
             val encodedPacket = encoder.encode(packet)
 
             try {
@@ -120,9 +119,9 @@ class DiscordSocket {
      */
     @Suppress("StatementWithEmptyBody")
     private fun readRawPacket(): RawPacket? {
-        if (!isConnected) throw IllegalStateException("You must connect to the socket before reading packets")
+        if (!socket.isConnected) throw IllegalStateException("You must connect to the socket before reading packets")
 
-        with(socket.inputStream) {
+        socket.inputStream?.apply {
             while (available() == 0) {
             }
 
@@ -136,6 +135,8 @@ class DiscordSocket {
                 null
             }
         }
+
+        return null
     }
 
     /**

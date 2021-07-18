@@ -19,6 +19,8 @@
 package dev.cbyrne.kdiscordipc
 
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
+import dev.cbyrne.kdiscordipc.exceptions.SocketConnectionException
+import dev.cbyrne.kdiscordipc.exceptions.SocketDisconnectionException
 import dev.cbyrne.kdiscordipc.listener.IPCListener
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.PacketDirection
@@ -28,8 +30,6 @@ import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 import dev.cbyrne.kdiscordipc.presence.DiscordPresence
 import dev.cbyrne.kdiscordipc.socket.DiscordSocket
 import dev.cbyrne.kdiscordipc.socket.SocketListener
-import java.io.IOException
-import java.nio.channels.IllegalBlockingModeException
 
 /**
  * A class for interacting with Discord via IPC
@@ -86,11 +86,9 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
      * @see DiscordSocket
      * @see DiscordSocket.connect
      *
-     * @throws IllegalBlockingModeException If this socket has an associated channel, and the channel is in non-blocking mode
-     * @throws IllegalArgumentException If the socket address is null or is a SocketAddress subclass not supported by this socket
-     * @throws IOException If an error has occurred during the connection
+     * @throws SocketConnectionException If an error has occurred during the connection
      */
-    @Throws(IllegalBlockingModeException::class, IllegalArgumentException::class, IOException::class)
+    @Throws(SocketConnectionException::class)
     fun connect() {
         socket.listener = this
 
@@ -102,11 +100,12 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
      * Closes the connection with the Discord IPC socket
      *
      * @throws IllegalStateException If the socket is already closed
-     * @throws IOException If an error has occurred when closing this socket
+     * @throws SocketDisconnectionException If an error has occurred when closing this socket
      */
-    @Throws(IllegalStateException::class, IOException::class)
+    @Throws(IllegalStateException::class, SocketDisconnectionException::class)
     fun disconnect() {
         if (!socket.isConnected) throw IllegalStateException("This socket is already closed!")
+
         socket.disconnect()
     }
 
