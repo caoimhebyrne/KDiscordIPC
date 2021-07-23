@@ -18,6 +18,7 @@
 
 plugins {
     kotlin("jvm") version "1.5.10"
+    `maven-publish`
 }
 
 group = "dev.cbyrne.kdiscordipc"
@@ -32,4 +33,16 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.7")
     implementation("com.kohlschutter.junixsocket:junixsocket-core:2.3.3")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
 }
