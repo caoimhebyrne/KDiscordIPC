@@ -29,6 +29,7 @@ import dev.cbyrne.kdiscordipc.packet.pipeline.PacketToByteArrayEncoder
 import dev.cbyrne.kdiscordipc.packet.pipeline.RawPacketToPacketDecoder
 import dev.cbyrne.kdiscordipc.socket.impl.UnixSystemSocket
 import dev.cbyrne.kdiscordipc.socket.impl.WindowsSystemSocket
+import dev.cbyrne.kdiscordipc.util.readBytes
 import org.newsclub.net.unix.AFUNIXSocket
 import java.io.File
 import java.io.IOException
@@ -126,7 +127,7 @@ class DiscordSocket {
             }
 
             return try {
-                val bytes = readNBytes(available())
+                val bytes = readBytes(available())
                 decoder.decode(bytes)
             } catch (t: Throwable) {
                 disconnect()
