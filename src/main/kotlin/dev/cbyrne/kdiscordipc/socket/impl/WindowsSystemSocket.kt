@@ -54,7 +54,7 @@ internal class WindowsSystemSocket : SystemSocket {
 
     @Throws(IllegalStateException::class, SocketDisconnectionException::class)
     override fun disconnect() {
-        if (isConnected) throw IllegalStateException("You must connect to a UnixSystemSocket before disconnecting!")
+        if (!isConnected) throw IllegalStateException("You must connect to a WindowsSystemSocket before disconnecting!")
         isConnected = false
 
         try {
