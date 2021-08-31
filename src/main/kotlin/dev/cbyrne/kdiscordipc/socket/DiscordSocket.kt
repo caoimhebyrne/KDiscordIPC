@@ -127,6 +127,11 @@ class DiscordSocket {
             }
 
             return try {
+                // Weird edge case here, an input stream can be open above, and we can have packets available
+                // In the time from that loop to readBytes, the socket can close. Let's have another check here
+                // to make sure the socket is still connected before reading bytes
+                if (!socket.isConnected) throw IllegalStateException("Socket disconnected while trying to read a packet.")
+
                 val bytes = readBytes(available())
                 decoder.decode(bytes)
             } catch (t: Throwable) {
