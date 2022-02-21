@@ -1,4 +1,4 @@
-package dev.cbyrne.kdiscordipc.test
+package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 

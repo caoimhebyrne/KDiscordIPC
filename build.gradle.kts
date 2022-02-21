@@ -12,11 +12,20 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    create("example")
+}
+
+val exampleImplementation by configurations
+exampleImplementation.extendsFrom(configurations.implementation.get())
+
 dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization)
 
     implementation(libs.junixsocket.core)
+
+    exampleImplementation(sourceSets.main.get().output)
 }
 
 publishing {
