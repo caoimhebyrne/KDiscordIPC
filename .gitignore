@@ -1,0 +1,28 @@
+# eclipse
+eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+classes
+*.ipr
+*.iws
+*.iml
+
+.idea/*
+!.idea/copyright/
+
+# gradle
+build
+.gradle
+
+# other
+run
+.DS_Store
+Thumbs.db
+transformed/*
