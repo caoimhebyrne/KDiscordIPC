@@ -10,7 +10,7 @@ import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
 
-class KDiscordIPC {
+class KDiscordIPC(val clientID: String) {
     private val socketHandler = SocketHandler(this)
     internal val packetHandlers = mutableMapOf<Int, PacketHandler<*>>()
 
@@ -26,7 +26,7 @@ class KDiscordIPC {
      */
     fun connect() {
         socketHandler.connect()
-        firePacketSend(packet = HandshakePacket(1, "abcd"))
+        firePacketSend(HandshakePacket(1, clientID))
     }
 
     /**
