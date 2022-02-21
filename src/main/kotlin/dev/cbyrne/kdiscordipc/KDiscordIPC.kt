@@ -9,9 +9,12 @@ import dev.cbyrne.kdiscordipc.packet.handler.impl.HandshakePacketHandler
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
+import org.slf4j.LoggerFactory
 
 class KDiscordIPC(val clientID: String) {
     private val socketHandler = SocketHandler(this)
+
+    internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     internal val packetHandlers = mutableMapOf<Int, PacketHandler<*>>()
 
     init {
@@ -60,7 +63,6 @@ class KDiscordIPC(val clientID: String) {
         val bytes = MessageToByteEncoder.encode(this, packet)
         socketHandler.write(bytes)
     }
-
 
     /**
      * Fired when a packet is received

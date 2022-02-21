@@ -24,8 +24,14 @@ dependencies {
     implementation(libs.kotlinx.serialization)
 
     implementation(libs.junixsocket.core)
+    implementation(libs.slf4j.api)
 
     exampleImplementation(sourceSets.main.get().output)
+
+    // Log4J is only used in the example project as a backend for SLF4j
+    exampleImplementation(libs.log4j.core)
+    exampleImplementation(libs.log4j.api)
+    exampleImplementation(libs.log4j.slf4j)
 }
 
 publishing {

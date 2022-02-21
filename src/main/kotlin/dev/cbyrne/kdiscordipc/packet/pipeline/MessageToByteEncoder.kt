@@ -16,6 +16,8 @@ object MessageToByteEncoder {
             ?: throw EncodeError.NotSupported(packet.opcode)
 
         val data = handler.encode(packet)
+        ipc.logger.debug("Encoding: ${data.decodeToString()}")
+
         val buffer = ByteBuffer.allocate(headerLength + data.size)
         buffer.putInt(packet.opcode.reverse())
         buffer.putInt(data.size.reverse())

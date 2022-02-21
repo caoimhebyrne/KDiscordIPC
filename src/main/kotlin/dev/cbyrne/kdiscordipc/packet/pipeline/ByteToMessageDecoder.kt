@@ -15,6 +15,8 @@ object ByteToMessageDecoder {
             .toByteArray()
             .decodeToString()
 
+        ipc.logger.debug("Decoding: $data")
+
         val handler = ipc.packetHandlers[opcode] ?: throw DecodeError.NotSupported(opcode, data)
         return handler.decode(data)
     }
