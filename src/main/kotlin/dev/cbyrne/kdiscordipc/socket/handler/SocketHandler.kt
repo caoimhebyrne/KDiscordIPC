@@ -3,6 +3,7 @@ package dev.cbyrne.kdiscordipc.socket.handler
 import dev.cbyrne.kdiscordipc.error.ConnectionError
 import dev.cbyrne.kdiscordipc.socket.Socket
 import dev.cbyrne.kdiscordipc.util.Platform
+import dev.cbyrne.kdiscordipc.util.onBytes
 import dev.cbyrne.kdiscordipc.util.platform
 import dev.cbyrne.kdiscordipc.util.temporaryDirectory
 import java.io.File
@@ -48,6 +49,18 @@ class SocketHandler {
     fun disconnect() = socket.close()
 
     /**
+     * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
+     */
+    private fun read() {
+        if (!socket.connected)
+            throw ConnectionError.NotConnected
+
+        socket.inputStream.onBytes {
+            println(it.decodeToString())
+        }
+    }
+
+    /**
      * Attempts to find an IPC file to connect with the Discord client's IPC server.
      *
      * This is a recursive function, if no [index] is supplied, it will be defaulted to 0.
@@ -63,21 +76,5 @@ class SocketHandler {
         val base = if (platform == Platform.WINDOWS) "\\\\?\\pipe\\" else temporaryDirectory
         val file = File(base, "discord-ipc-${index}")
         return file.takeIf { it.exists() } ?: findIPCFile(index + 1)
-    }
-
-    // TODO: Refactor this
-    private fun read() {
-        check(socket.connected) { "Socket is not connected." }
-
-        socket.inputStream.apply {
-            while (available() == 0) {
-            }
-
-            val available = available()
-            val bytes = ByteArray(available)
-            read(bytes, 0, available)
-
-            println(bytes.decodeToString())
-        }
     }
 }

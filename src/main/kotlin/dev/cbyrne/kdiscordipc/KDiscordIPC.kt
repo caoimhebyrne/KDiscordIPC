@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package dev.cbyrne.kdiscordipc
 
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
