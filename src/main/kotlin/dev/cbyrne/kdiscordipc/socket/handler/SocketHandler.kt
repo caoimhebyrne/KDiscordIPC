@@ -1,6 +1,8 @@
 package dev.cbyrne.kdiscordipc.socket.handler
 
+import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.error.ConnectionError
+import dev.cbyrne.kdiscordipc.packet.pipeline.ByteToMessageDecoder
 import dev.cbyrne.kdiscordipc.socket.Socket
 import dev.cbyrne.kdiscordipc.util.Platform
 import dev.cbyrne.kdiscordipc.util.onBytes
@@ -10,12 +12,12 @@ import java.io.File
 import kotlin.concurrent.thread
 
 /**
- * A bridge between [dev.cbyrne.kdiscordipc.KDiscordIPC] and the Discord IPC server.
+ * A bridge between [KDiscordIPC] and the Discord IPC server.
  *
  * @see Socket
- * @see dev.cbyrne.kdiscordipc.KDiscordIPC
+ * @see KDiscordIPC
  */
-class SocketHandler {
+class SocketHandler(private val ipc: KDiscordIPC) {
     private val socket = Socket.get()
 
     /**
@@ -32,7 +34,6 @@ class SocketHandler {
             throw ConnectionError.AlreadyConnected
 
         socket.connect(findIPCFile())
-        socket.outputStream.write("{\"op\": \"null\"}".encodeToByteArray()) // TODO: Replace this
 
         thread(true, name = "KDiscordIPC Packet Reading") {
             while (socket.connected) {
@@ -49,6 +50,19 @@ class SocketHandler {
     fun disconnect() = socket.close()
 
     /**
+     * Writes a [ByteArray] to the socket.
+     *
+     * @see Socket
+     * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
+     */
+    fun write(bytes: ByteArray) {
+        if (!socket.connected)
+            throw ConnectionError.NotConnected
+
+        socket.outputStream.write(bytes)
+    }
+
+    /**
      * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
      */
     private fun read() {
@@ -56,7 +70,8 @@ class SocketHandler {
             throw ConnectionError.NotConnected
 
         socket.inputStream.onBytes {
-            println(it.decodeToString())
+            val packet = ByteToMessageDecoder.decode(ipc, it)
+            ipc.firePacketRead(packet)
         }
     }
 
