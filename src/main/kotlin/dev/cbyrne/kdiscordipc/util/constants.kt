@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 internal const val headerLength = 8
 
 internal val json = Json {
-    prettyPrint = true
+    prettyPrint = false
     ignoreUnknownKeys = true
     isLenient = true
 }
