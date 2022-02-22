@@ -4,6 +4,7 @@ package dev.cbyrne.kdiscordipc
 
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
+import dev.cbyrne.kdiscordipc.packet.handler.impl.DispatchPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.ErrorPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.HandshakePacketHandler
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
@@ -19,6 +20,7 @@ class KDiscordIPC(val clientID: String) {
 
     init {
         addPacketHandler(0x00, HandshakePacketHandler())
+        addPacketHandler(0x01, DispatchPacketHandler())
         addPacketHandler(0x02, ErrorPacketHandler())
     }
 
@@ -70,6 +72,6 @@ class KDiscordIPC(val clientID: String) {
      * @see SocketHandler.read
      */
     internal fun firePacketRead(packet: Packet) {
-        println(packet)
+        logger.debug("Received: $packet")
     }
 }

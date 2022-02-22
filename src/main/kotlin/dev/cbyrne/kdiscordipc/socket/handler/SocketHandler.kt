@@ -66,6 +66,7 @@ class SocketHandler(private val ipc: KDiscordIPC) {
      * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
      */
     private fun read() {
+        // Crab in the code 🦀
         if (!socket.connected)
             throw ConnectionError.NotConnected
 
