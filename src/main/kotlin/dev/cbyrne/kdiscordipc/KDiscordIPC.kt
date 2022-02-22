@@ -2,17 +2,21 @@
 
 package dev.cbyrne.kdiscordipc
 
+import dev.cbyrne.kdiscordipc.observer.KDiscordIPCObserver
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.DispatchPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.ErrorPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.HandshakePacketHandler
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
+import dev.cbyrne.kdiscordipc.packet.impl.dispatch.DispatchPacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
 import org.slf4j.LoggerFactory
 
 class KDiscordIPC(val clientID: String) {
+    var observer: KDiscordIPCObserver? = null
+
     private val socketHandler = SocketHandler(this)
 
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
@@ -72,6 +76,8 @@ class KDiscordIPC(val clientID: String) {
      * @see SocketHandler.read
      */
     internal fun firePacketRead(packet: Packet) {
-        logger.debug("Received: $packet")
+        when (packet) {
+            is DispatchPacket.ReadyEvent -> observer?.onReady(packet.data)
+        }
     }
 }
