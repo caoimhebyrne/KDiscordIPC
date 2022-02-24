@@ -1,9 +1,9 @@
 package dev.cbyrne.kdiscordipc.packet.impl
 
 import dev.cbyrne.kdiscordipc.activity.DiscordActivity
+import dev.cbyrne.kdiscordipc.event.data.EventData
+import dev.cbyrne.kdiscordipc.event.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.impl.command.data.DispatchEventData
-import dev.cbyrne.kdiscordipc.packet.impl.command.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.packet.serialization.CommandPacketSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,7 +34,7 @@ sealed class CommandPacket : Packet {
         @SerialName("cmd")
         override val command = "DISPATCH"
 
-        abstract val data: DispatchEventData
+        abstract val data: EventData
         abstract val event: String?
 
         @Serializable
