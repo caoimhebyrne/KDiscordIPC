@@ -10,6 +10,7 @@ internal val json = Json {
     ignoreUnknownKeys = true
     isLenient = true
     encodeDefaults = true
+    explicitNulls = false
 }
 
 internal val currentPid = ManagementFactory.getRuntimeMXBean().pid
