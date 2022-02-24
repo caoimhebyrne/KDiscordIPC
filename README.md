@@ -26,10 +26,23 @@ dependencies {
 ## Usage
 
 ```kotlin
-val ipc = KDiscordIPC("YOUR_CLIENT_ID)
-ipc.connect()
+val ipc = KDiscordIPC("YOUR_CLIENT_ID")
 
-// More info soon
+// It doesn't matter where you set `activity`.
+// If your client has not connected yet, the presence will be set when it has connected. 
+ipc.activity = activity("Hello", "world") {
+    // This is a simple example, you can do things like smallImage(), largeImage(), etc.
+    button("Click me", "https://google.com")
+    timestamps(System.currentTimeMillis(), System.currentTimeMillis() + 50000)
+}
+
+ipc.observer = object : KDiscordIPCObserver {
+    override fun onReady(data: ReadyEventData) {
+        logger.info("Ready! (${data.user.username}#${data.user.discriminator})")
+    }
+}
+
+ipc.connect()
 ```
 
 ## Maintainers
