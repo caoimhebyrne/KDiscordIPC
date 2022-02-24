@@ -2,20 +2,30 @@
 
 package dev.cbyrne.kdiscordipc
 
+import dev.cbyrne.kdiscordipc.activity.DiscordActivity
 import dev.cbyrne.kdiscordipc.observer.KDiscordIPCObserver
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
-import dev.cbyrne.kdiscordipc.packet.handler.impl.DispatchPacketHandler
+import dev.cbyrne.kdiscordipc.packet.handler.impl.CommandPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.ErrorPacketHandler
 import dev.cbyrne.kdiscordipc.packet.handler.impl.HandshakePacketHandler
+import dev.cbyrne.kdiscordipc.packet.impl.CommandPacket
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
-import dev.cbyrne.kdiscordipc.packet.impl.dispatch.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.command.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.util.currentPid
 import org.slf4j.LoggerFactory
 
 class KDiscordIPC(val clientID: String) {
     var observer: KDiscordIPCObserver? = null
+    var activity: DiscordActivity? = null
+        set(value) {
+            field = value
+
+            if (socketHandler.connected)
+                sendActivity(value)
+        }
 
     private val socketHandler = SocketHandler(this)
 
@@ -24,7 +34,7 @@ class KDiscordIPC(val clientID: String) {
 
     init {
         addPacketHandler(0x00, HandshakePacketHandler())
-        addPacketHandler(0x01, DispatchPacketHandler())
+        addPacketHandler(0x01, CommandPacketHandler())
         addPacketHandler(0x02, ErrorPacketHandler())
     }
 
@@ -45,6 +55,11 @@ class KDiscordIPC(val clientID: String) {
      */
     fun disconnect() {
         socketHandler.disconnect()
+    }
+
+    fun sendActivity(activity: DiscordActivity?) {
+        val arguments = CommandPacket.SetActivity.Arguments(currentPid, activity)
+        firePacketSend(CommandPacket.SetActivity(arguments))
     }
 
     /**
@@ -77,7 +92,12 @@ class KDiscordIPC(val clientID: String) {
      */
     internal fun firePacketRead(packet: Packet) {
         when (packet) {
-            is DispatchPacket.ReadyEvent -> observer?.onReady(packet.data)
+            is CommandPacket.DispatchEvent.Ready -> onReady(packet.data)
         }
+    }
+
+    private fun onReady(data: ReadyEventData) {
+        activity?.let { sendActivity(it) }
+        observer?.onReady(data)
     }
 }

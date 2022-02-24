@@ -20,6 +20,9 @@ import kotlin.concurrent.thread
 class SocketHandler(private val ipc: KDiscordIPC) {
     private val socket = Socket.get()
 
+    val connected: Boolean
+        get() = socket.connected
+
     /**
      * Connects to the Discord IPC server.
      * This spawns a new thread ("KDiscordIPC Packet Reading"), which is responsible for... well... reading packets?

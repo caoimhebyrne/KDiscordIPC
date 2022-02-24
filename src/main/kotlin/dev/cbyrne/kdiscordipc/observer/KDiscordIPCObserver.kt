@@ -1,6 +1,6 @@
 package dev.cbyrne.kdiscordipc.observer
 
-import dev.cbyrne.kdiscordipc.packet.impl.dispatch.data.ReadyEventData
+import dev.cbyrne.kdiscordipc.packet.impl.command.data.ReadyEventData
 
 // Minecraft reference?
 interface KDiscordIPCObserver {

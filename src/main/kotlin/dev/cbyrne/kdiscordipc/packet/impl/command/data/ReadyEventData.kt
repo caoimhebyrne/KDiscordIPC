@@ -1,4 +1,4 @@
-package dev.cbyrne.kdiscordipc.packet.impl.dispatch.data
+package dev.cbyrne.kdiscordipc.packet.impl.command.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,7 +9,7 @@ data class ReadyEventData(
     val version: Int,
     val config: Configuration,
     val user: User,
-) : DispatchPacketData() {
+) : DispatchEventData() {
     @Serializable
     data class Configuration(
         @SerialName("cdn_host") val cdnHost: String,
