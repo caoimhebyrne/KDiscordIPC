@@ -1,8 +1,8 @@
 package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
-import dev.cbyrne.kdiscordipc.activity.*
-import dev.cbyrne.kdiscordipc.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.data.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 

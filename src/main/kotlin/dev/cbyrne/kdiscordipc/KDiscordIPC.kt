@@ -2,22 +2,22 @@
 
 package dev.cbyrne.kdiscordipc
 
-import dev.cbyrne.kdiscordipc.activity.ActivityManager
-import dev.cbyrne.kdiscordipc.event.Event
-import dev.cbyrne.kdiscordipc.event.data.ErrorEventData
-import dev.cbyrne.kdiscordipc.event.impl.ErrorEvent
-import dev.cbyrne.kdiscordipc.event.impl.ReadyEvent
-import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
-import dev.cbyrne.kdiscordipc.packet.handler.impl.CommandPacketHandler
-import dev.cbyrne.kdiscordipc.packet.handler.impl.ErrorPacketHandler
-import dev.cbyrne.kdiscordipc.packet.handler.impl.HandshakePacketHandler
-import dev.cbyrne.kdiscordipc.packet.impl.CommandPacket
-import dev.cbyrne.kdiscordipc.packet.impl.ErrorPacket
-import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
-import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
-import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
-import dev.cbyrne.kdiscordipc.user.UserManager
+import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
+import dev.cbyrne.kdiscordipc.core.event.Event
+import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
+import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.core.packet.Packet
+import dev.cbyrne.kdiscordipc.core.packet.handler.PacketHandler
+import dev.cbyrne.kdiscordipc.core.packet.handler.impl.CommandPacketHandler
+import dev.cbyrne.kdiscordipc.core.packet.handler.impl.ErrorPacketHandler
+import dev.cbyrne.kdiscordipc.core.packet.handler.impl.HandshakePacketHandler
+import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
+import dev.cbyrne.kdiscordipc.core.packet.impl.ErrorPacket
+import dev.cbyrne.kdiscordipc.core.packet.impl.HandshakePacket
+import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
+import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.manager.impl.UserManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
-class KDiscordIPC(val clientID: String) {
+class KDiscordIPC(private val clientID: String) {
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     internal val packetHandlers = mutableMapOf<Int, PacketHandler<*>>()
 
