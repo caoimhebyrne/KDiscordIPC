@@ -13,7 +13,7 @@ fun main() {
     val ipc = KDiscordIPC("945428344806183003")
     logger.info("Starting example!")
 
-    ipc.activity = activity("Hello", "world") {
+    ipc.activityManager.activity = activity("Hello", "world") {
         largeImage("https://avatars.githubusercontent.com/u/71222289?v=4", "KDiscordIPC")
         smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
 

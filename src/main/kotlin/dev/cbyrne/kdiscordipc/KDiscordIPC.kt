@@ -2,7 +2,7 @@
 
 package dev.cbyrne.kdiscordipc
 
-import dev.cbyrne.kdiscordipc.activity.DiscordActivity
+import dev.cbyrne.kdiscordipc.activity.ActivityManager
 import dev.cbyrne.kdiscordipc.event.Event
 import dev.cbyrne.kdiscordipc.event.data.ErrorEventData
 import dev.cbyrne.kdiscordipc.event.impl.ErrorEvent
@@ -17,19 +17,13 @@ import dev.cbyrne.kdiscordipc.packet.impl.ErrorPacket
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
-import dev.cbyrne.kdiscordipc.util.currentPid
 import org.slf4j.LoggerFactory
 
 class KDiscordIPC(val clientID: String) {
+    val activityManager = ActivityManager(this)
     val subscribers: MutableMap<Class<out Event>, MutableSet<(Event) -> Unit>> = mutableMapOf()
-
-    var activity: DiscordActivity? = null
-        set(value) {
-            field = value
-
-            if (socketHandler.connected)
-                sendActivity(value)
-        }
+    val connected: Boolean
+        get() = socketHandler.connected
 
     private val socketHandler = SocketHandler(this)
 
@@ -40,8 +34,6 @@ class KDiscordIPC(val clientID: String) {
         addPacketHandler(0x00, HandshakePacketHandler())
         addPacketHandler(0x01, CommandPacketHandler())
         addPacketHandler(0x02, ErrorPacketHandler())
-
-        on<ReadyEvent> { activity?.let { sendActivity(activity) } }
     }
 
     /**
@@ -61,11 +53,6 @@ class KDiscordIPC(val clientID: String) {
      */
     fun disconnect() {
         socketHandler.disconnect()
-    }
-
-    fun sendActivity(activity: DiscordActivity?) {
-        val arguments = CommandPacket.SetActivity.Arguments(currentPid, activity)
-        firePacketSend(CommandPacket.SetActivity(arguments))
     }
 
     /**
@@ -102,7 +89,7 @@ class KDiscordIPC(val clientID: String) {
      *
      * @see SocketHandler.write
      */
-    private fun firePacketSend(packet: Packet) {
+    internal fun firePacketSend(packet: Packet) {
         val bytes = MessageToByteEncoder.encode(this, packet)
         socketHandler.write(bytes)
     }
