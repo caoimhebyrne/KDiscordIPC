@@ -14,6 +14,7 @@ object CommandPacketSerializer : JsonContentPolymorphicSerializer<CommandPacket>
             }
             "SET_ACTIVITY" -> CommandPacket.SetActivity.serializer()
             "GET_USER" -> CommandPacket.GetUser.serializer()
+            "AUTHENTICATE" -> CommandPacket.Authenticate.serializer()
             else -> error("Unknown command: $command")
         }
     }

@@ -23,6 +23,7 @@ suspend fun main() {
 
     ipc.on<ReadyEvent> {
         logger.info("Ready! (${data.user.username}#${data.user.discriminator})")
+        logger.info("OAuth Access Token: ${ipc.applicationManager.getOAuthToken().accessToken}")
 
         val user = ipc.userManager.getUser("843135686173392946")
         logger.info("User by ID: $user")
