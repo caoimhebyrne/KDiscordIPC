@@ -22,6 +22,7 @@ exampleImplementation.extendsFrom(configurations.implementation.get())
 dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlinx.coroutines)
 
     implementation(libs.junixsocket.core)
     implementation(libs.slf4j.api)

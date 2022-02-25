@@ -8,7 +8,7 @@ import dev.cbyrne.kdiscordipc.packet.impl.CommandPacket
 import dev.cbyrne.kdiscordipc.util.currentPid
 
 class ActivityManager(private val ipc: KDiscordIPC) {
-    init {
+    internal suspend fun init() {
         ipc.on<ReadyEvent> {
             activity?.let { sendActivity(activity) }
         }
@@ -17,9 +17,7 @@ class ActivityManager(private val ipc: KDiscordIPC) {
     var activity: DiscordActivity? = null
         set(value) {
             field = value
-
-            if (ipc.connected)
-                sendActivity(value)
+            if (ipc.connected) sendActivity(value)
         }
 
     fun clearActivity() {

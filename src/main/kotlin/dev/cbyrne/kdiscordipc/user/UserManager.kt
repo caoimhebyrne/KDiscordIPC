@@ -3,27 +3,20 @@ package dev.cbyrne.kdiscordipc.user
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.data.User
 import dev.cbyrne.kdiscordipc.packet.impl.CommandPacket
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 
 class UserManager(private val ipc: KDiscordIPC) {
-    private val getUserCallbacks: MutableMap<String, MutableSet<(User) -> Unit>> = mutableMapOf()
+    private val _events = MutableSharedFlow<User>()
 
-    init {
+    internal suspend fun init() {
         ipc.on<CommandPacket.GetUser> {
-            val data = it.data ?: return@on
-            val callbacks = getUserCallbacks[data.id] ?: return@on run {
-                ipc.logger.warn("Received a GetUser packet without a corresponding callback: $it")
-            }
-
-            callbacks.forEach { it(data) }
-            getUserCallbacks.remove(data.id)
+            data?.let { _events.emit(data) }
         }
     }
 
-    fun getUser(id: String, callback: (User) -> Unit) {
-        getUserCallbacks
-            .computeIfAbsent(id) { mutableSetOf() }
-            .add(callback)
-
+    suspend fun getUser(id: String): User {
         ipc.firePacketSend(CommandPacket.GetUser(CommandPacket.GetUser.Arguments(id)))
+        return _events.first { it.id == id }
     }
 }

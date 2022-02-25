@@ -5,11 +5,13 @@ import dev.cbyrne.kdiscordipc.error.ConnectionError
 import dev.cbyrne.kdiscordipc.packet.pipeline.ByteToMessageDecoder
 import dev.cbyrne.kdiscordipc.socket.Socket
 import dev.cbyrne.kdiscordipc.util.Platform
-import dev.cbyrne.kdiscordipc.util.onBytes
 import dev.cbyrne.kdiscordipc.util.platform
+import dev.cbyrne.kdiscordipc.util.readAvailableBytes
 import dev.cbyrne.kdiscordipc.util.temporaryDirectory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.File
-import kotlin.concurrent.thread
 
 /**
  * A bridge between [KDiscordIPC] and the Discord IPC server.
@@ -22,6 +24,17 @@ class SocketHandler(private val ipc: KDiscordIPC) {
 
     val connected: Boolean
         get() = socket.connected
+
+    @Suppress("ControlFlowWithEmptyBody")
+    val events = flow {
+        while (connected) {
+            while (socket.inputStream.available() == 0) {
+            }
+
+            val bytes = socket.inputStream.readAvailableBytes()
+            emit(ByteToMessageDecoder.decode(ipc, bytes))
+        }
+    }.flowOn(Dispatchers.IO)
 
     /**
      * Connects to the Discord IPC server.
@@ -37,12 +50,6 @@ class SocketHandler(private val ipc: KDiscordIPC) {
             throw ConnectionError.AlreadyConnected
 
         socket.connect(findIPCFile())
-
-        thread(true, name = "KDiscordIPC Packet Reading") {
-            while (socket.connected) {
-                read()
-            }
-        }
     }
 
     /**
@@ -63,20 +70,6 @@ class SocketHandler(private val ipc: KDiscordIPC) {
             throw ConnectionError.NotConnected
 
         socket.outputStream.write(bytes)
-    }
-
-    /**
-     * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
-     */
-    private fun read() {
-        // Crab in the code 🦀
-        if (!socket.connected)
-            throw ConnectionError.NotConnected
-
-        socket.inputStream.onBytes {
-            val packet = ByteToMessageDecoder.decode(ipc, it)
-            ipc.firePacketRead(packet)
-        }
     }
 
     /**
