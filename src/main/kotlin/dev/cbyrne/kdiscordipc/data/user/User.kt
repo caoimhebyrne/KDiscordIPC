@@ -1,4 +1,4 @@
-package dev.cbyrne.kdiscordipc.data
+package dev.cbyrne.kdiscordipc.data.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,5 +11,5 @@ data class User(
     val avatar: String,
     val bot: Boolean,
     val flags: Int,
-    @SerialName("premium_type") val premiumType: Int
+    @SerialName("premium_type") val premiumType: PremiumType
 )

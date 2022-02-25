@@ -6,16 +6,17 @@ import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
 import dev.cbyrne.kdiscordipc.core.util.currentPid
-import dev.cbyrne.kdiscordipc.data.DiscordActivity
+import dev.cbyrne.kdiscordipc.data.activity.Activity
+import dev.cbyrne.kdiscordipc.manager.Manager
 
-class ActivityManager(private val ipc: KDiscordIPC) {
-    internal suspend fun init() {
+class ActivityManager(override val ipc: KDiscordIPC) : Manager() {
+    override suspend fun init() {
         ipc.on<ReadyEvent> {
             activity?.let { sendActivity(activity) }
         }
     }
 
-    var activity: DiscordActivity? = null
+    var activity: Activity? = null
         set(value) {
             field = value
             if (ipc.connected) sendActivity(value)
@@ -25,7 +26,7 @@ class ActivityManager(private val ipc: KDiscordIPC) {
         activity = null
     }
 
-    private fun sendActivity(activity: DiscordActivity?) {
+    private fun sendActivity(activity: Activity?) {
         val arguments = CommandPacket.SetActivity.Arguments(currentPid, activity)
         ipc.firePacketSend(CommandPacket.SetActivity(arguments))
     }

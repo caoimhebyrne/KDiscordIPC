@@ -4,8 +4,8 @@ import dev.cbyrne.kdiscordipc.core.event.data.EventData
 import dev.cbyrne.kdiscordipc.core.event.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.core.packet.Packet
 import dev.cbyrne.kdiscordipc.core.packet.serialization.CommandPacketSerializer
-import dev.cbyrne.kdiscordipc.data.DiscordActivity
-import dev.cbyrne.kdiscordipc.data.User
+import dev.cbyrne.kdiscordipc.data.activity.Activity
+import dev.cbyrne.kdiscordipc.data.user.User
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -41,7 +41,7 @@ sealed class CommandPacket : Packet {
         @Serializable
         data class Arguments(
             val pid: Long,
-            val activity: DiscordActivity?
+            val activity: Activity?
         )
     }
 

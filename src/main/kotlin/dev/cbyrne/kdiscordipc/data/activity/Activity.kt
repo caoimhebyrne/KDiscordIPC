@@ -1,12 +1,12 @@
 @file:Suppress("unused")
 
-package dev.cbyrne.kdiscordipc.data
+package dev.cbyrne.kdiscordipc.data.activity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DiscordActivity(
+data class Activity(
     var details: String,
     var state: String,
     var timestamps: Timestamps? = null,
@@ -57,40 +57,40 @@ data class DiscordActivity(
 fun activity(
     details: String,
     state: String,
-    init: DiscordActivity.() -> Unit
-) = DiscordActivity(details, state).apply(init)
+    init: Activity.() -> Unit
+) = Activity(details, state).apply(init)
 
-fun DiscordActivity.button(label: String, url: String) {
+fun Activity.button(label: String, url: String) {
     if (this.buttons == null)
         this.buttons = mutableListOf()
 
-    this.buttons?.add(DiscordActivity.Button(label, url))
+    this.buttons?.add(Activity.Button(label, url))
 }
 
-fun DiscordActivity.timestamps(start: Long, end: Long) {
-    this.timestamps = DiscordActivity.Timestamps(start, end)
+fun Activity.timestamps(start: Long, end: Long) {
+    this.timestamps = Activity.Timestamps(start, end)
 }
 
-fun DiscordActivity.smallImage(key: String, text: String? = null) {
+fun Activity.smallImage(key: String, text: String? = null) {
     if (this.assets == null)
-        this.assets = DiscordActivity.Assets()
+        this.assets = Activity.Assets()
 
     this.assets?.smallImage = key
     this.assets?.smallText = text
 }
 
-fun DiscordActivity.largeImage(key: String, text: String? = null) {
+fun Activity.largeImage(key: String, text: String? = null) {
     if (this.assets == null)
-        this.assets = DiscordActivity.Assets()
+        this.assets = Activity.Assets()
 
     this.assets?.largeImage = key
     this.assets?.largeText = text
 }
 
-fun DiscordActivity.party(id: String, size: List<Int>) {
-    this.party = DiscordActivity.Party(id, size)
+fun Activity.party(id: String, size: List<Int>) {
+    this.party = Activity.Party(id, size)
 }
 
-fun DiscordActivity.secrets(join: String? = null, match: String? = null, spectate: String? = null) {
-    this.secrets = DiscordActivity.Secrets(join, match, spectate)
+fun Activity.secrets(join: String? = null, match: String? = null, spectate: String? = null) {
+    this.secrets = Activity.Secrets(join, match, spectate)
 }

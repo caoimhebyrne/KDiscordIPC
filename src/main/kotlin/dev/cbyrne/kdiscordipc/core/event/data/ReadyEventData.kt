@@ -1,6 +1,6 @@
 package dev.cbyrne.kdiscordipc.core.event.data
 
-import dev.cbyrne.kdiscordipc.data.User
+import dev.cbyrne.kdiscordipc.data.user.User
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

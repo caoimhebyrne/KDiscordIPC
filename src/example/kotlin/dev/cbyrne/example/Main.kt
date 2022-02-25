@@ -2,7 +2,7 @@ package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
-import dev.cbyrne.kdiscordipc.data.*
+import dev.cbyrne.kdiscordipc.data.activity.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -25,7 +25,7 @@ suspend fun main() {
         logger.info("Ready! (${data.user.username}#${data.user.discriminator})")
 
         val user = ipc.userManager.getUser("843135686173392946")
-        logger.info(user)
+        logger.info("User by ID: $user")
     }
 
     ipc.connect()
