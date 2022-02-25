@@ -13,6 +13,7 @@ object CommandPacketSerializer : JsonContentPolymorphicSerializer<CommandPacket>
                 else -> error("Unknown event: $event")
             }
             "SET_ACTIVITY" -> CommandPacket.SetActivity.serializer()
+            "GET_USER" -> CommandPacket.GetUser.serializer()
             else -> error("Unknown command: $command")
         }
     }

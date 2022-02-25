@@ -1,6 +1,7 @@
 package dev.cbyrne.kdiscordipc.packet.impl
 
 import dev.cbyrne.kdiscordipc.activity.DiscordActivity
+import dev.cbyrne.kdiscordipc.data.User
 import dev.cbyrne.kdiscordipc.event.data.EventData
 import dev.cbyrne.kdiscordipc.event.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.packet.Packet
@@ -13,6 +14,21 @@ sealed class CommandPacket : Packet {
     override val opcode = 0x01
     abstract val command: String
     abstract val nonce: String?
+
+    @Serializable
+    data class GetUser(
+        @SerialName("args")
+        val arguments: Arguments? = null,
+        val data: User? = null,
+        @SerialName("cmd")
+        override val command: String = "GET_USER",
+        override val nonce: String = "0",
+    ) : CommandPacket() {
+        @Serializable
+        data class Arguments(
+            val id: String
+        )
+    }
 
     @Serializable
     data class SetActivity(

@@ -24,6 +24,10 @@ fun main() {
 
     ipc.on<ReadyEvent> {
         logger.info("Ready! (${it.data.user.username}#${it.data.user.discriminator})")
+
+        ipc.userManager.getUser("843135686173392946") { user ->
+            logger.info("Found user: $user")
+        }
     }
 
     ipc.on<ErrorEvent> {

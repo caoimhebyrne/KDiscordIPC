@@ -17,13 +17,18 @@ import dev.cbyrne.kdiscordipc.packet.impl.ErrorPacket
 import dev.cbyrne.kdiscordipc.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.user.UserManager
 import org.slf4j.LoggerFactory
 
 class KDiscordIPC(val clientID: String) {
-    val activityManager = ActivityManager(this)
-    val subscribers: MutableMap<Class<out Event>, MutableSet<(Event) -> Unit>> = mutableMapOf()
     val connected: Boolean
         get() = socketHandler.connected
+
+    val eventSubscribers: MutableMap<Class<out Event>, MutableSet<(Event) -> Unit>> = mutableMapOf()
+    val packetSubscribers: MutableMap<Class<out Packet>, MutableSet<(Packet) -> Unit>> = mutableMapOf()
+
+    val activityManager = ActivityManager(this)
+    val userManager = UserManager(this)
 
     private val socketHandler = SocketHandler(this)
 
@@ -60,7 +65,7 @@ class KDiscordIPC(val clientID: String) {
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Event> on(noinline action: (T) -> Unit) {
-        subscribers
+        eventSubscribers
             .computeIfAbsent(T::class.java) { mutableSetOf() }
             .add(action as (Event) -> Unit)
     }
@@ -69,7 +74,24 @@ class KDiscordIPC(val clientID: String) {
      * Send an [Event] to all listeners
      */
     internal fun <T : Event> post(event: T) =
-        subscribers[event::class.java]?.forEach { it(event) }
+        eventSubscribers[event::class.java]?.forEach { it(event) }
+
+    /**
+     * Subscribe to a [Packet] being received
+     */
+    @JvmName("onPacket")
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Packet> on(noinline action: (T) -> Unit) {
+        packetSubscribers
+            .computeIfAbsent(T::class.java) { mutableSetOf() }
+            .add(action as (Packet) -> Unit)
+    }
+
+    /**
+     * Send a [Packet] to all listeners
+     */
+    internal fun <T : Packet> post(packet: T) =
+        packetSubscribers[packet::class.java]?.forEach { it(packet) }
 
     /**
      * Adds a packet handler for a specific opcode
@@ -103,6 +125,7 @@ class KDiscordIPC(val clientID: String) {
         when (packet) {
             is CommandPacket.DispatchEvent.Ready -> post(ReadyEvent(packet.data))
             is ErrorPacket -> post(ErrorEvent(ErrorEventData(packet.code, packet.message)))
+            else -> post(packet)
         }
     }
 }
