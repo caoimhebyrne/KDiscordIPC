@@ -5,7 +5,7 @@ import java.lang.management.ManagementFactory
 
 internal const val headerLength = 8
 
-internal val json = Json {
+val json = Json {
     prettyPrint = false
     ignoreUnknownKeys = true
     isLenient = true

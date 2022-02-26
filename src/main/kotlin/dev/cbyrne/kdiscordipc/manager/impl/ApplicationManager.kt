@@ -1,12 +1,12 @@
 package dev.cbyrne.kdiscordipc.manager.impl
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
-import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
-import dev.cbyrne.kdiscordipc.data.authentication.AuthenticationResponse
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.AuthenticatePacket
 import dev.cbyrne.kdiscordipc.manager.Manager
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.AuthenticatePacket as InboundAuthenticatePacket
 
 /**
  * This manager gives you access  to a bearer token for the currently connected Discord user, which you can then use against the Discord REST API.
@@ -21,11 +21,11 @@ class ApplicationManager(override val ipc: KDiscordIPC) : Manager() {
      *
      * These bearer tokens are active for seven days, after which they will expire.
      */
-    suspend fun getOAuthToken(): AuthenticationResponse {
-        ipc.firePacketSend(CommandPacket.Authenticate())
+    suspend fun getOAuthToken(): InboundAuthenticatePacket.Data {
+        ipc.firePacketSend(AuthenticatePacket())
 
         return ipc.packets
-            .filterIsInstance<CommandPacket.Authenticate>()
+            .filterIsInstance<InboundAuthenticatePacket>()
             .mapNotNull { it.data }
             .first()
     }

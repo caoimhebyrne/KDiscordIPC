@@ -4,10 +4,13 @@ package dev.cbyrne.kdiscordipc.manager.impl
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
-import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SetActivityPacket
 import dev.cbyrne.kdiscordipc.core.util.currentPid
 import dev.cbyrne.kdiscordipc.data.activity.Activity
 import dev.cbyrne.kdiscordipc.manager.Manager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /**
  * This manager allows you to set the current user's activity (a.k.a. rich presence)
@@ -19,7 +22,13 @@ class ActivityManager(override val ipc: KDiscordIPC) : Manager() {
     var activity: Activity? = null
         set(value) {
             field = value
-            if (ipc.connected) sendActivity(value)
+
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    if (ipc.connected)
+                        sendActivity(value)
+                }
+            }
         }
 
     /**
@@ -36,7 +45,6 @@ class ActivityManager(override val ipc: KDiscordIPC) : Manager() {
     }
 
     private fun sendActivity(activity: Activity?) {
-        val arguments = CommandPacket.SetActivity.Arguments(currentPid, activity)
-        ipc.firePacketSend(CommandPacket.SetActivity(arguments))
+        ipc.firePacketSend(SetActivityPacket(currentPid, activity))
     }
 }

@@ -39,7 +39,7 @@ suspend fun main() {
 
         // Get an oauth token for the currently logged-in user
         val oauthToken = ipc.applicationManager.getOAuthToken()
-        logger.info("Got Oauth token for application: ${oauthToken.application}")
+        logger.info("Received oauth token from Discord! Expires on: ${oauthToken.expires}")
     }
 
     ipc.on<ErrorEvent> {

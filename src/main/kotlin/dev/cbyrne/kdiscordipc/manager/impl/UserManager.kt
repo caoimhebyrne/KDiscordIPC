@@ -2,12 +2,12 @@ package dev.cbyrne.kdiscordipc.manager.impl
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
-import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.GetUserPacket
 import dev.cbyrne.kdiscordipc.data.user.User
 import dev.cbyrne.kdiscordipc.manager.Manager
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.GetUserPacket as InboundGetUserPacket
 
 /**
  * This manager helps you to retrieve basic user information for any user on Discord.
@@ -34,14 +34,13 @@ class UserManager(override val ipc: KDiscordIPC) : Manager() {
      * @param id the id of the user to fetch
      */
     suspend fun getUser(id: String): User {
-        ipc.firePacketSend(CommandPacket.GetUser(CommandPacket.GetUser.Arguments(id)))
+        ipc.firePacketSend(GetUserPacket(id))
 
         return ipc.packets
-            .filterIsInstance<CommandPacket.GetUser>()
-            .mapNotNull { it.data }
-            .first { it.id == id }
+            .filterIsInstance<InboundGetUserPacket>()
+            .first { it.data.id == id }
+            .data
     }
 
-    fun subscribeToUserUpdates() =
-        ipc.subscribe("CURRENT_USER_UPDATE")
+    suspend fun subscribeToUserUpdates() = ipc.subscribe("CURRENT_USER_UPDATE")
 }

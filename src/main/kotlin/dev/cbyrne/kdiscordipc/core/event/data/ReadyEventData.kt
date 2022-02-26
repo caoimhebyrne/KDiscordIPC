@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ReadyEventData(
     @SerialName("v")
-    val version: Int,
+    val version: Int? = null,
     val config: Configuration,
     val user: User,
 ) : EventData() {

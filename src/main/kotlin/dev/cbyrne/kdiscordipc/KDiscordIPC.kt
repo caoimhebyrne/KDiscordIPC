@@ -7,14 +7,12 @@ import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
-import dev.cbyrne.kdiscordipc.core.packet.Packet
-import dev.cbyrne.kdiscordipc.core.packet.handler.PacketHandler
-import dev.cbyrne.kdiscordipc.core.packet.handler.impl.CommandPacketHandler
-import dev.cbyrne.kdiscordipc.core.packet.handler.impl.ErrorPacketHandler
-import dev.cbyrne.kdiscordipc.core.packet.handler.impl.HandshakePacketHandler
-import dev.cbyrne.kdiscordipc.core.packet.impl.CommandPacket
-import dev.cbyrne.kdiscordipc.core.packet.impl.ErrorPacket
-import dev.cbyrne.kdiscordipc.core.packet.impl.HandshakePacket
+import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.OutboundPacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.HandshakePacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SubscribePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
 import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
@@ -27,10 +25,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as InboundSubscribePacket
 
 class KDiscordIPC(private val clientID: String) {
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
-    internal val packetHandlers = mutableMapOf<Int, PacketHandler<*>>()
 
     private val socketHandler = SocketHandler(this)
 
@@ -47,14 +45,8 @@ class KDiscordIPC(private val clientID: String) {
     private val _events = MutableSharedFlow<Event>()
     val events = _events.asSharedFlow()
 
-    private val _packets = MutableSharedFlow<Packet>()
+    private val _packets = MutableSharedFlow<InboundPacket>()
     val packets = _packets.asSharedFlow()
-
-    init {
-        addPacketHandler(0x00, HandshakePacketHandler())
-        addPacketHandler(0x01, CommandPacketHandler())
-        addPacketHandler(0x02, ErrorPacketHandler())
-    }
 
     /**
      * Connects to the Discord IPC server
@@ -72,8 +64,8 @@ class KDiscordIPC(private val clientID: String) {
 
         socketHandler.events.collect {
             when (it) {
-                is CommandPacket.DispatchEvent.Ready -> _events.emit(ReadyEvent(it.data))
-                is CommandPacket.DispatchEvent.CurrentUserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
+                is DispatchEventPacket.Ready -> _events.emit(ReadyEvent(it.data))
+                is DispatchEventPacket.UserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
                 is ErrorPacket -> _events.emit(ErrorEvent(ErrorEventData(it.code, it.message)))
                 else -> _packets.emit(it)
             }
@@ -90,7 +82,7 @@ class KDiscordIPC(private val clientID: String) {
             .launchIn(scope)
 
     @JvmName("onPacket")
-    suspend inline fun <reified T : Packet> on(noinline consumer: suspend T.() -> Unit) =
+    suspend inline fun <reified T : InboundPacket> on(noinline consumer: suspend T.() -> Unit) =
         packets
             .filterIsInstance<T>()
             .onEach { event ->
@@ -110,21 +102,12 @@ class KDiscordIPC(private val clientID: String) {
     /**
      * Subscribe to an [Event]
      */
-    internal fun subscribe(name: String) {
-        firePacketSend(CommandPacket.Subscribe(name))
-    }
+    internal suspend fun subscribe(name: String) {
+        firePacketSend(SubscribePacket(name))
 
-    /**
-     * Adds a packet handler for a specific opcode
-     *
-     * @see PacketHandler
-     */
-    internal fun addPacketHandler(opcode: Int, handler: PacketHandler<*>) {
-        check(packetHandlers[opcode] == null) {
-            "A packet handler has already been registered for the opcode $opcode!"
-        }
-
-        packetHandlers[opcode] = handler
+        packets
+            .filterIsInstance<InboundSubscribePacket>()
+            .first { it.data.event == name }
     }
 
     /**
@@ -132,7 +115,7 @@ class KDiscordIPC(private val clientID: String) {
      *
      * @see SocketHandler.write
      */
-    internal fun firePacketSend(packet: Packet) {
+    internal fun firePacketSend(packet: OutboundPacket) {
         val bytes = MessageToByteEncoder.encode(this, packet)
         socketHandler.write(bytes)
     }
