@@ -6,6 +6,8 @@ Many other Discord RPC / IPC libraries are either lacking in features, don't wor
 or are no longer maintained. KDiscordIPC aims to stay up-to-date for as long as the Discord IPC API is actually
 supported
 
+**For documentation on how to use KDiscordIPC, check out the [wiki](https://github.com/cbyrneee/KDiscordIPC/wiki)!**
+
 ### Features
 
 - Easy to use Kotlin DSL
@@ -13,13 +15,6 @@ supported
 - Uses Java's [native socket library](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/net/UnixDomainSocketAddress.html)
     - This means that KDiscordIPC will work on any platform that supports Java 16+ (and Discord)
 - Aiming to have full interop with Discord's [GameSDK](https://discord.com/developers/docs/game-sdk/sdk-starter-guide)
-
-## Table of Contents
-
-- [Install](#install)
-- [Example](#example)
-- [Maintainers](#maintainers)
-- [License](#license)
 
 ## Install
 
