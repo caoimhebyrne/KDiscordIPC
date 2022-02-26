@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 
+/**
+ * This manager helps you to retrieve basic user information for any user on Discord.
+ */
 class UserManager(override val ipc: KDiscordIPC) : Manager() {
     private val _events = MutableSharedFlow<Packet>()
 
@@ -17,6 +20,11 @@ class UserManager(override val ipc: KDiscordIPC) : Manager() {
         ipc.on<CommandPacket.GetUser> { _events.emit(this) }
     }
 
+    /**
+     * Get user information for a specific user id
+     *
+     * @param id the id of the user to fetch
+     */
     suspend fun getUser(id: String): User {
         ipc.firePacketSend(CommandPacket.GetUser(CommandPacket.GetUser.Arguments(id)))
 
