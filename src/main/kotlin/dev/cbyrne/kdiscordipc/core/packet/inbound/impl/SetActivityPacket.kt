@@ -17,9 +17,9 @@ data class SetActivityPacket(
     data class Data(
         val details: String,
         val state: String,
-        val timestamps: Activity.Timestamps,
-        val assets: Activity.Assets,
-        val party: Activity.Party,
+        val timestamps: Activity.Timestamps? = null,
+        val assets: Activity.Assets? = null,
+        val party: Activity.Party? = null,
         val buttons: List<String>,
         val name: String,
         @SerialName("application_id")
