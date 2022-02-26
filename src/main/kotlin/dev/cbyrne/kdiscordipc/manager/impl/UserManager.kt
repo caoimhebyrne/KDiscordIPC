@@ -5,8 +5,6 @@ import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.GetUserPacket
 import dev.cbyrne.kdiscordipc.data.user.User
 import dev.cbyrne.kdiscordipc.manager.Manager
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.GetUserPacket as InboundGetUserPacket
 
 /**
@@ -34,12 +32,8 @@ class UserManager(override val ipc: KDiscordIPC) : Manager() {
      * @param id the id of the user to fetch
      */
     suspend fun getUser(id: String): User {
-        ipc.firePacketSend(GetUserPacket(id))
-
-        return ipc.packets
-            .filterIsInstance<InboundGetUserPacket>()
-            .first { it.data.id == id }
-            .data
+        val response: InboundGetUserPacket = ipc.sendPacket(GetUserPacket(id))
+        return response.data
     }
 
     suspend fun subscribeToUserUpdates() = ipc.subscribe("CURRENT_USER_UPDATE")

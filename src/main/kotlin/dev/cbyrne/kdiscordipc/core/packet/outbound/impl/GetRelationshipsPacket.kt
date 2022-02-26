@@ -8,7 +8,7 @@ data class GetRelationshipsPacket(
     override val opcode: Int = 0x01,
     override val cmd: String = "GET_RELATIONSHIPS",
     override val args: Arguments = Arguments(),
-    override val nonce: String = "0"
+    override var nonce: String = "0"
 ) : OutboundPacket() {
     @Serializable
     class Arguments : OutboundPacket.Arguments()

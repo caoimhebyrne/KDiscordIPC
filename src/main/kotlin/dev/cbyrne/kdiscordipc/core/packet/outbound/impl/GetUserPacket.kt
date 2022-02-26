@@ -8,7 +8,7 @@ data class GetUserPacket(
     override val opcode: Int = 0x01,
     override val cmd: String = "GET_USER",
     override val args: Arguments,
-    override val nonce: String = "0"
+    override var nonce: String = "0"
 ) : OutboundPacket() {
     constructor(id: String) : this(args = Arguments(id))
 

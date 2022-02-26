@@ -8,7 +8,7 @@ data class AuthenticatePacket(
     override val args: Arguments = Arguments(),
     override val cmd: String = "AUTHENTICATE",
     override val opcode: Int = 0x01,
-    override val nonce: String = "0"
+    override var nonce: String = "0"
 ) : CommandPacket() {
     @Serializable
     class Arguments : OutboundPacket.Arguments()

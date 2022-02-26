@@ -3,9 +3,6 @@ package dev.cbyrne.kdiscordipc.manager.impl
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.AuthenticatePacket
 import dev.cbyrne.kdiscordipc.manager.Manager
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.AuthenticatePacket as InboundAuthenticatePacket
 
 /**
@@ -22,11 +19,7 @@ class ApplicationManager(override val ipc: KDiscordIPC) : Manager() {
      * These bearer tokens are active for seven days, after which they will expire.
      */
     suspend fun getOAuthToken(): InboundAuthenticatePacket.Data {
-        ipc.firePacketSend(AuthenticatePacket())
-
-        return ipc.packets
-            .filterIsInstance<InboundAuthenticatePacket>()
-            .mapNotNull { it.data }
-            .first()
+        val response: InboundAuthenticatePacket = ipc.sendPacket(AuthenticatePacket())
+        return response.data
     }
 }

@@ -14,7 +14,7 @@ abstract class OutboundPacket {
     @SerialName("args")
     abstract val args: Arguments?
 
-    abstract val nonce: String
+    abstract var nonce: String
 
     @Serializable
     open class Arguments
@@ -24,7 +24,7 @@ abstract class OutboundPacket {
 abstract class IrregularOutboundPacket : OutboundPacket() {
     abstract override val opcode: Int
 
-    override val nonce = ""
+    override var nonce = ""
     override val cmd = ""
     override val args: Arguments? = null
 }

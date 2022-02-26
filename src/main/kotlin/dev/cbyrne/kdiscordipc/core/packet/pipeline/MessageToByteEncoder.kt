@@ -11,7 +11,9 @@ import kotlinx.serialization.encodeToString
 import java.nio.ByteBuffer
 
 object MessageToByteEncoder {
-    internal inline fun <reified T : OutboundPacket> encode(ipc: KDiscordIPC, packet: T): ByteArray {
+    internal inline fun <reified T : OutboundPacket> encode(ipc: KDiscordIPC, packet: T, nonce: String?): ByteArray {
+        nonce?.let { packet.nonce = it }
+
         val data = json.encodeToString(packet)
         ipc.logger.debug("Encoding: $data")
 

@@ -25,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import java.util.*
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as InboundSubscribePacket
 
 class KDiscordIPC(private val clientID: String) {
@@ -60,7 +61,7 @@ class KDiscordIPC(private val clientID: String) {
         userManager.init()
 
         socketHandler.connect()
-        firePacketSend(HandshakePacket(1, clientID))
+        writePacket(HandshakePacket(1, clientID))
 
         socketHandler.events.collect {
             when (it) {
@@ -103,20 +104,21 @@ class KDiscordIPC(private val clientID: String) {
      * Subscribe to an [Event]
      */
     internal suspend fun subscribe(name: String) {
-        firePacketSend(SubscribePacket(name))
-
-        packets
-            .filterIsInstance<InboundSubscribePacket>()
-            .first { it.data.event == name }
+        sendPacket<InboundSubscribePacket>(SubscribePacket(name))
     }
 
-    /**
-     * Fired when we want to send a packet
-     *
-     * @see SocketHandler.write
-     */
-    internal fun firePacketSend(packet: OutboundPacket) {
-        val bytes = MessageToByteEncoder.encode(this, packet)
+    internal fun writePacket(packet: OutboundPacket) {
+        val bytes = MessageToByteEncoder.encode(this, packet, null)
         socketHandler.write(bytes)
+    }
+
+    internal suspend inline fun <reified T : InboundPacket> sendPacket(packet: OutboundPacket): T {
+        val nonce = UUID.randomUUID().toString()
+        val bytes = MessageToByteEncoder.encode(this, packet, nonce)
+        socketHandler.write(bytes)
+
+        return packets
+            .filterIsInstance<T>()
+            .first { it.nonce == nonce }
     }
 }

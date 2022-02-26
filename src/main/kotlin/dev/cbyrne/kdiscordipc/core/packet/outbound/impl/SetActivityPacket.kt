@@ -9,7 +9,7 @@ data class SetActivityPacket(
     override val args: Arguments,
     override val cmd: String = "SET_ACTIVITY",
     override val opcode: Int = 0x01,
-    override val nonce: String = "0"
+    override var nonce: String = "0"
 ) : CommandPacket() {
     constructor(pid: Long, activity: Activity?, nonce: String = "0") : this(Arguments(pid, activity), nonce = nonce)
 
