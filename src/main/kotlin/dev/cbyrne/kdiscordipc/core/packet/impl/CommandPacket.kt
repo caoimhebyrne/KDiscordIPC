@@ -6,6 +6,7 @@ import dev.cbyrne.kdiscordipc.core.packet.Packet
 import dev.cbyrne.kdiscordipc.core.packet.serialization.CommandPacketSerializer
 import dev.cbyrne.kdiscordipc.data.activity.Activity
 import dev.cbyrne.kdiscordipc.data.authentication.AuthenticationResponse
+import dev.cbyrne.kdiscordipc.data.relationship.Relationship
 import dev.cbyrne.kdiscordipc.data.user.User
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -15,6 +16,19 @@ sealed class CommandPacket : Packet {
     override val opcode = 0x01
     abstract val command: String
     abstract val nonce: String?
+
+    @Serializable
+    data class GetRelationships(
+        val data: Data? = null,
+        @SerialName("cmd")
+        override val command: String = "GET_RELATIONSHIPS",
+        override val nonce: String = "0",
+    ) : CommandPacket() {
+        @Serializable
+        data class Data(
+            val relationships: List<Relationship>
+        )
+    }
 
     @Serializable
     data class Authenticate(

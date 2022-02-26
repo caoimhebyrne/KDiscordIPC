@@ -27,6 +27,9 @@ suspend fun main() {
 
         val user = ipc.userManager.getUser("843135686173392946")
         logger.info("User by ID: $user")
+
+        val relationships = ipc.relationshipManager.getRelationships()
+        logger.info("Relationships: ${relationships.size}")
     }
 
     ipc.connect()

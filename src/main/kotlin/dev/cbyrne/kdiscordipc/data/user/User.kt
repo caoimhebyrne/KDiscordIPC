@@ -8,7 +8,7 @@ data class User(
     val id: String,
     val username: String,
     val discriminator: String,
-    val avatar: String,
+    val avatar: String? = null,
     val bot: Boolean,
     val flags: Int,
     @SerialName("premium_type") val premiumType: PremiumType

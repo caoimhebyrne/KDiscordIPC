@@ -1,6 +1,8 @@
 package dev.cbyrne.kdiscordipc.core.socket.impl
 
+import dev.cbyrne.kdiscordipc.core.socket.RawPacket
 import dev.cbyrne.kdiscordipc.core.socket.Socket
+import dev.cbyrne.kdiscordipc.core.util.reverse
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -17,9 +19,6 @@ class WindowsSocket : Socket {
     override val connected: Boolean
         get() = _connected
 
-    override val inputStream = RandomAccessInputStream(randomAccessFile)
-    override val outputStream = RandomAccessOutputStream(randomAccessFile)
-
     override fun connect(file: File) {
         randomAccessFile = RandomAccessFile(file, "rw")
         _connected = true
@@ -30,25 +29,22 @@ class WindowsSocket : Socket {
         _connected = false
     }
 
-    /**
-     * An [InputStream] which is backed by a [RandomAccessFile]
-     */
-    class RandomAccessInputStream(private val file: RandomAccessFile) : InputStream() {
-        override fun available() = file.length().toInt()
-        override fun close() = file.close()
+    @Suppress("ControlFlowWithEmptyBody")
+    override fun read(): RawPacket {
+        while (_connected && randomAccessFile.length() == 0L) {
+            Thread.sleep(50L)
+        }
 
-        override fun read(): Int = file.read()
-        override fun read(b: ByteArray) = file.read(b)
-        override fun read(b: ByteArray, off: Int, len: Int) = file.read(b, off, len)
+        val opcode = randomAccessFile.readInt().reverse()
+        val length = randomAccessFile.readInt().reverse()
+
+        val data = ByteArray(length)
+        randomAccessFile.readFully(data)
+
+        return RawPacket(opcode, length, data)
     }
 
-    /**
-     * An [OutputStream] which is backed by a [RandomAccessFile]
-     */
-    class RandomAccessOutputStream(private val file: RandomAccessFile) : OutputStream() {
-        override fun write(b: Int) = file.write(b)
-        override fun write(b: ByteArray) = file.write(b)
-        override fun write(b: ByteArray, off: Int, len: Int) = file.write(b, off, len)
-        override fun close() = file.close()
+    override fun write(bytes: ByteArray) {
+        randomAccessFile.write(bytes)
     }
 }

@@ -24,7 +24,6 @@ dependencies {
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.coroutines)
 
-    implementation(libs.junixsocket.core)
     implementation(libs.slf4j.api)
 
     exampleImplementation(sourceSets.main.get().output)

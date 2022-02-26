@@ -6,7 +6,6 @@ import dev.cbyrne.kdiscordipc.core.packet.pipeline.ByteToMessageDecoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.util.Platform
 import dev.cbyrne.kdiscordipc.core.util.platform
-import dev.cbyrne.kdiscordipc.core.util.readAvailableBytes
 import dev.cbyrne.kdiscordipc.core.util.temporaryDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
@@ -28,11 +27,8 @@ class SocketHandler(private val ipc: KDiscordIPC) {
     @Suppress("ControlFlowWithEmptyBody")
     val events = flow {
         while (connected) {
-            while (socket.inputStream.available() == 0) {
-            }
-
-            val bytes = socket.inputStream.readAvailableBytes()
-            emit(ByteToMessageDecoder.decode(ipc, bytes))
+            val rawPacket = socket.read()
+            emit(ByteToMessageDecoder.decode(ipc, rawPacket))
         }
     }.flowOn(Dispatchers.IO)
 
@@ -69,7 +65,7 @@ class SocketHandler(private val ipc: KDiscordIPC) {
         if (!socket.connected)
             throw ConnectionError.NotConnected
 
-        socket.outputStream.write(bytes)
+        socket.write(bytes)
     }
 
     /**

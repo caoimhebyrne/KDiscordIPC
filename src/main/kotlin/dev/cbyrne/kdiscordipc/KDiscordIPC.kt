@@ -18,6 +18,7 @@ import dev.cbyrne.kdiscordipc.core.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
 import dev.cbyrne.kdiscordipc.manager.impl.ApplicationManager
+import dev.cbyrne.kdiscordipc.manager.impl.RelationshipManager
 import dev.cbyrne.kdiscordipc.manager.impl.UserManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ class KDiscordIPC(private val clientID: String) {
 
     val activityManager = ActivityManager(this)
     val applicationManager = ApplicationManager(this)
+    val relationshipManager = RelationshipManager(this)
     val userManager = UserManager(this)
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
@@ -61,6 +63,7 @@ class KDiscordIPC(private val clientID: String) {
     suspend fun connect() {
         activityManager.init()
         applicationManager.init()
+        relationshipManager.init()
         userManager.init()
 
         socketHandler.connect()

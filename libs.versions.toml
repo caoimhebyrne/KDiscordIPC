@@ -2,7 +2,6 @@
 kotlin = "1.6.10"
 kotlinx-serialization = "1.3.2"
 kotlinx-coroutines = "1.6.0"
-junixsocket = "2.4.0"
 slf4j = "1.7.36"
 
 # Used for example, not included in KDiscordIPC
@@ -12,7 +11,6 @@ log4j = "2.17.1"
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-junixsocket-core = { module = "com.kohlschutter.junixsocket:junixsocket-core", version.ref = "junixsocket" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Used for example, not included in KDiscordIPC
