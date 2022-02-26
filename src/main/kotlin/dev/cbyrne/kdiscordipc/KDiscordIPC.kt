@@ -2,9 +2,9 @@
 
 package dev.cbyrne.kdiscordipc
 
-import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
 import dev.cbyrne.kdiscordipc.core.event.Event
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
+import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.core.packet.Packet
@@ -17,6 +17,7 @@ import dev.cbyrne.kdiscordipc.core.packet.impl.ErrorPacket
 import dev.cbyrne.kdiscordipc.core.packet.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
 import dev.cbyrne.kdiscordipc.manager.impl.ApplicationManager
 import dev.cbyrne.kdiscordipc.manager.impl.RelationshipManager
 import dev.cbyrne.kdiscordipc.manager.impl.UserManager
@@ -72,6 +73,7 @@ class KDiscordIPC(private val clientID: String) {
         socketHandler.events.collect {
             when (it) {
                 is CommandPacket.DispatchEvent.Ready -> _events.emit(ReadyEvent(it.data))
+                is CommandPacket.DispatchEvent.CurrentUserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
                 is ErrorPacket -> _events.emit(ErrorEvent(ErrorEventData(it.code, it.message)))
                 else -> _packets.emit(it)
             }
@@ -106,11 +108,18 @@ class KDiscordIPC(private val clientID: String) {
     }
 
     /**
+     * Subscribe to an [Event]
+     */
+    internal fun subscribe(name: String) {
+        firePacketSend(CommandPacket.Subscribe(name))
+    }
+
+    /**
      * Adds a packet handler for a specific opcode
      *
      * @see PacketHandler
      */
-    private fun addPacketHandler(opcode: Int, handler: PacketHandler<*>) {
+    internal fun addPacketHandler(opcode: Int, handler: PacketHandler<*>) {
         check(packetHandlers[opcode] == null) {
             "A packet handler has already been registered for the opcode $opcode!"
         }

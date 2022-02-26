@@ -1,6 +1,8 @@
 package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
+import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.data.activity.*
 import org.apache.logging.log4j.LogManager
@@ -23,13 +25,29 @@ suspend fun main() {
 
     ipc.on<ReadyEvent> {
         logger.info("Ready! (${data.user.username}#${data.user.discriminator})")
-        logger.info("OAuth Access Token: ${ipc.applicationManager.getOAuthToken().accessToken}")
 
+        // Subscribe to user updates
+        ipc.userManager.subscribeToUserUpdates()
+
+        // Get a specific user by ID
         val user = ipc.userManager.getUser("843135686173392946")
         logger.info("User by ID: $user")
 
+        // Get the user's friend list
         val relationships = ipc.relationshipManager.getRelationships()
         logger.info("Relationships: ${relationships.size}")
+
+        // Get an oauth token for the currently logged-in user
+        val oauthToken = ipc.applicationManager.getOAuthToken()
+        logger.info("Got Oauth token for application: ${oauthToken.application}")
+    }
+
+    ipc.on<ErrorEvent> {
+        logger.error("IPC communication error (${data.code}): ${data.message}")
+    }
+
+    ipc.on<CurrentUserUpdateEvent> {
+        logger.info("Current user updated!")
     }
 
     ipc.connect()

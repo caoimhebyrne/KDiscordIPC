@@ -1,5 +1,6 @@
 package dev.cbyrne.kdiscordipc.data.user
 
+import dev.cbyrne.kdiscordipc.core.event.data.EventData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,4 +13,4 @@ data class User(
     val bot: Boolean,
     val flags: Int,
     @SerialName("premium_type") val premiumType: PremiumType
-)
+) : EventData()

@@ -18,6 +18,15 @@ sealed class CommandPacket : Packet {
     abstract val nonce: String?
 
     @Serializable
+    data class Subscribe(
+        @SerialName("evt")
+        val event: String? = null,
+        @SerialName("cmd")
+        override val command: String = "SUBSCRIBE",
+        override val nonce: String = "0",
+    ) : CommandPacket()
+
+    @Serializable
     data class GetRelationships(
         val data: Data? = null,
         @SerialName("cmd")
@@ -81,6 +90,14 @@ sealed class CommandPacket : Packet {
             @SerialName("evt")
             override val event: String,
             override val data: ReadyEventData,
+            override val nonce: String?
+        ) : DispatchEvent()
+
+        @Serializable
+        data class CurrentUserUpdate(
+            @SerialName("evt")
+            override val event: String,
+            override val data: User,
             override val nonce: String?
         ) : DispatchEvent()
     }

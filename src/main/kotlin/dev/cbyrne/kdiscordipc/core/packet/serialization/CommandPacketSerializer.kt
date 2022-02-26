@@ -10,12 +10,14 @@ object CommandPacketSerializer : JsonContentPolymorphicSerializer<CommandPacket>
         return when (command) {
             "DISPATCH" -> when (val event = element.contentOrNull("evt")) {
                 "READY" -> CommandPacket.DispatchEvent.Ready.serializer()
+                "CURRENT_USER_UPDATE" -> CommandPacket.DispatchEvent.CurrentUserUpdate.serializer()
                 else -> error("Unknown event: $event")
             }
             "SET_ACTIVITY" -> CommandPacket.SetActivity.serializer()
             "GET_USER" -> CommandPacket.GetUser.serializer()
             "AUTHENTICATE" -> CommandPacket.Authenticate.serializer()
             "GET_RELATIONSHIPS" -> CommandPacket.GetRelationships.serializer()
+            "SUBSCRIBE" -> CommandPacket.Subscribe.serializer()
             else -> error("Unknown command: $command")
         }
     }
