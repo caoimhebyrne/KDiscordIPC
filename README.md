@@ -10,16 +10,15 @@ KDiscordIPC is also aiming to have all the features that Discord's [GameSDK](htt
 the "old RPC API" does.
 
 ### Features
-- Works on all major platforms and architectures
-  - Tested Platforms: Linux, macOS & Windows
-  - Tested Architectures: aarch64, x86_64
+- Uses [Java's Unix Socket API](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/net/UnixDomainSocketAddress.html)
+  - Therefore, it works on any platform that supports Discord and Java 16+
 - Easy to use Kotlin DSL
 - Coroutines based
 
 ## Table of Contents
 
 - [Install](#install)
-- [Usage](#usage)
+- [Example](#example)
 - [Maintainers](#maintainers)
 - [License](#license)
 
@@ -33,7 +32,7 @@ dependencies {
 }
 ```
 
-## Usage
+## Example
 
 ```kotlin
 val ipc = KDiscordIPC("YOUR_CLIENT_ID")
