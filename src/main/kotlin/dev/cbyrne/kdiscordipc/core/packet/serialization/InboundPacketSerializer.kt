@@ -20,6 +20,7 @@ object InboundPacketSerializer : JsonContentPolymorphicSerializer<InboundPacket>
             "GET_USER" -> GetUserPacket.serializer()
             "GET_RELATIONSHIPS" -> GetRelationshipsPacket.serializer()
             "SUBSCRIBE" -> SubscribePacket.serializer()
+            "ACCEPT_ACTIVITY_INVITE" -> AcceptActivityInvitePacket.serializer()
             else -> error("Unknown packet command: $command")
         }
 

@@ -22,8 +22,8 @@ suspend fun main() {
             largeImage("https://avatars.githubusercontent.com/u/71222289?v=4", "KDiscordIPC")
             smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
 
-            party("test", listOf(1, 2))
-            secrets("sdfdsfhusdfdsjfiodsjfdsoflmskdngnretorenls;kdp[")
+            party(UUID.randomUUID().toString(), listOf(1, 2))
+            secrets(UUID.randomUUID().toString())
 //            button("Click me", "https://google.com")
             timestamps(System.currentTimeMillis(), System.currentTimeMillis() + 50000)
         }
@@ -62,6 +62,8 @@ suspend fun main() {
 
     ipc.on<ActivityInviteEvent> {
         logger.info("We have been invited to join ${data.user.username}'s party! (${data.activity.party.id})")
+
+        ipc.activityManager.acceptInvite(data)
     }
 
     ipc.connect()

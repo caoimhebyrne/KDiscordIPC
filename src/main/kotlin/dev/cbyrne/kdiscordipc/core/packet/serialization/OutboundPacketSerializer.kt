@@ -13,6 +13,7 @@ object OutboundPacketSerializer : JsonContentPolymorphicSerializer<OutboundPacke
             "GET_USER" -> GetUserPacket.serializer()
             "GET_RELATIONSHIPS" -> GetRelationshipsPacket.serializer()
             "SUBSCRIBE" -> SubscribePacket.serializer()
+            "ACCEPT_ACTIVITY_INVITE" -> AcceptActivityInvitePacket.serializer()
             else -> HandshakePacket.serializer()
         }
     }
