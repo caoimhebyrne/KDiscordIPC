@@ -20,12 +20,12 @@ data class SetActivityPacket(
         val timestamps: Activity.Timestamps? = null,
         val assets: Activity.Assets? = null,
         val party: Activity.Party? = null,
-        val buttons: List<String>,
+        val buttons: List<String>?,
         val name: String,
         @SerialName("application_id")
         val applicationId: String,
         val type: Int,
-        val metadata: Metadata
+        val metadata: Metadata?
     ) : InboundPacket.Data()
 
     @Serializable
