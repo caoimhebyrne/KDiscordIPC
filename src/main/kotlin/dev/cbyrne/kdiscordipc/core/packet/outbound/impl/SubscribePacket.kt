@@ -1,5 +1,6 @@
 package dev.cbyrne.kdiscordipc.core.packet.outbound.impl
 
+import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.packet.outbound.OutboundPacket
 import kotlinx.serialization.Serializable
 
@@ -11,7 +12,7 @@ data class SubscribePacket(
     override var nonce: String = "0",
     val evt: String
 ) : OutboundPacket() {
-    constructor(name: String) : this(evt = name)
+    constructor(name: DiscordEvent) : this(evt = name.eventName)
 
     @Serializable
     class Arguments : OutboundPacket.Arguments()

@@ -3,6 +3,7 @@
 package dev.cbyrne.kdiscordipc
 
 import dev.cbyrne.kdiscordipc.core.event.Event
+import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
@@ -103,8 +104,8 @@ class KDiscordIPC(private val clientID: String) {
     /**
      * Subscribe to an [Event]
      */
-    internal suspend fun subscribe(name: String) {
-        sendPacket<InboundSubscribePacket>(SubscribePacket(name))
+    internal suspend fun subscribe(event: DiscordEvent) {
+        sendPacket<InboundSubscribePacket>(SubscribePacket(event))
     }
 
     internal fun writePacket(packet: OutboundPacket) {

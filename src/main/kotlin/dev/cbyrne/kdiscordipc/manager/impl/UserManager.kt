@@ -1,6 +1,7 @@
 package dev.cbyrne.kdiscordipc.manager.impl
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
+import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.GetUserPacket
 import dev.cbyrne.kdiscordipc.data.user.User
@@ -36,5 +37,5 @@ class UserManager(override val ipc: KDiscordIPC) : Manager() {
         return response.data
     }
 
-    suspend fun subscribeToUserUpdates() = ipc.subscribe("CURRENT_USER_UPDATE")
+    suspend fun subscribeToUserUpdates() = ipc.subscribe(DiscordEvent.CurrentUserUpdate)
 }
