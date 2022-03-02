@@ -1,6 +1,8 @@
 package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
+import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ActivityJoinEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
@@ -23,12 +25,17 @@ suspend fun main() {
             smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
 
             party("test", listOf(1, 2))
-            button("Click me", "https://google.com")
+            secrets("sdfdsfhusdfdsjfiodsjfdsoflmskdngnretorenls;kdp[")
+//            button("Click me", "https://google.com")
             timestamps(System.currentTimeMillis(), System.currentTimeMillis() + 50000)
         }
 
-        // Subscribe to user updates
-        ipc.userManager.subscribeToUserUpdates()
+        // Subscribe to some events
+        ipc.subscribe(DiscordEvent.CurrentUserUpdate)
+        ipc.subscribe(DiscordEvent.ActivityJoinRequest)
+        ipc.subscribe(DiscordEvent.ActivityJoin)
+        ipc.subscribe(DiscordEvent.ActivityInvite)
+        ipc.subscribe(DiscordEvent.ActivitySpectate)
 
         // Get a specific user by ID
         val user = ipc.userManager.getUser("843135686173392946")
@@ -49,6 +56,10 @@ suspend fun main() {
 
     ipc.on<CurrentUserUpdateEvent> {
         logger.info("Current user updated!")
+    }
+
+    ipc.on<ActivityJoinEvent> {
+        logger.info("Activity join! ${data.secret}")
     }
 
     ipc.connect()
