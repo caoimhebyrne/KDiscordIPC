@@ -2,9 +2,10 @@
 
 package dev.cbyrne.kdiscordipc
 
-import dev.cbyrne.kdiscordipc.core.event.Event
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
+import dev.cbyrne.kdiscordipc.core.event.Event
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
+import dev.cbyrne.kdiscordipc.core.event.impl.ActivityJoinEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
@@ -68,6 +69,7 @@ class KDiscordIPC(private val clientID: String) {
             when (it) {
                 is DispatchEventPacket.Ready -> _events.emit(ReadyEvent(it.data))
                 is DispatchEventPacket.UserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
+                is DispatchEventPacket.ActivityJoin -> _events.emit(ActivityJoinEvent(it.data))
                 is ErrorPacket -> _events.emit(ErrorEvent(ErrorEventData(it.code, it.message)))
                 else -> _packets.emit(it)
             }
@@ -76,21 +78,15 @@ class KDiscordIPC(private val clientID: String) {
 
     @JvmName("onEvent")
     suspend inline fun <reified T : Event> on(noinline consumer: suspend T.() -> Unit) =
-        events
-            .filterIsInstance<T>()
-            .onEach { event ->
+        events.filterIsInstance<T>().onEach { event ->
                 scope.launch { consumer(event) }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
     @JvmName("onPacket")
     suspend inline fun <reified T : InboundPacket> on(noinline consumer: suspend T.() -> Unit) =
-        packets
-            .filterIsInstance<T>()
-            .onEach { event ->
+        packets.filterIsInstance<T>().onEach { event ->
                 scope.launch { consumer(event) }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
     /**
      * Disconnects from the Discord IPC server
@@ -104,7 +100,7 @@ class KDiscordIPC(private val clientID: String) {
     /**
      * Subscribe to an [Event]
      */
-    internal suspend fun subscribe(event: DiscordEvent) {
+    suspend fun subscribe(event: DiscordEvent) {
         sendPacket<InboundSubscribePacket>(SubscribePacket(event))
     }
 
@@ -118,8 +114,6 @@ class KDiscordIPC(private val clientID: String) {
         val bytes = MessageToByteEncoder.encode(this, packet, nonce)
         socketHandler.write(bytes)
 
-        return packets
-            .filterIsInstance<T>()
-            .first { it.nonce == nonce }
+        return packets.filterIsInstance<T>().first { it.nonce == nonce }
     }
 }

@@ -11,6 +11,7 @@ object InboundPacketSerializer : JsonContentPolymorphicSerializer<InboundPacket>
             "DISPATCH" -> when (val event = element.contentOrNull("evt")) {
                 "READY" -> DispatchEventPacket.Ready.serializer()
                 "CURRENT_USER_UPDATE" -> DispatchEventPacket.UserUpdate.serializer()
+                "ACTIVITY_JOIN" -> DispatchEventPacket.ActivityJoin.serializer()
                 else -> error("Unknown DISPATCH event: $event")
             }
             "SET_ACTIVITY" -> SetActivityPacket.serializer()

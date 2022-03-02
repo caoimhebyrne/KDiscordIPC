@@ -1,5 +1,6 @@
 package dev.cbyrne.kdiscordipc.core.packet.inbound.impl
 
+import dev.cbyrne.kdiscordipc.core.event.data.ActivityJoinEventData
 import dev.cbyrne.kdiscordipc.core.event.data.EventData
 import dev.cbyrne.kdiscordipc.core.event.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.core.packet.inbound.CommandPacket
@@ -16,11 +17,16 @@ abstract class DispatchEventPacket(
 
     @Serializable
     data class Ready(
-        override val data: ReadyEventData,
+        override val data: ReadyEventData
     ) : DispatchEventPacket()
 
     @Serializable
     data class UserUpdate(
-        override val data: User,
+        override val data: User
+    ) : DispatchEventPacket()
+
+    @Serializable
+    data class ActivityJoin(
+        override val data: ActivityJoinEventData
     ) : DispatchEventPacket()
 }
