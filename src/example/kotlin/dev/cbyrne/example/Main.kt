@@ -2,13 +2,11 @@ package dev.cbyrne.example
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ActivityJoinEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.*
 import dev.cbyrne.kdiscordipc.data.activity.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.*
 
 val logger: Logger = LogManager.getLogger("Example")
 
@@ -59,7 +57,11 @@ suspend fun main() {
     }
 
     ipc.on<ActivityJoinEvent> {
-        logger.info("Activity join! ${data.secret}")
+        logger.info("The user has joined someone else's party! ${data.secret}")
+    }
+
+    ipc.on<ActivityInviteEvent> {
+        logger.info("We have been invited to join ${data.user.username}'s party! (${data.activity.party.id})")
     }
 
     ipc.connect()

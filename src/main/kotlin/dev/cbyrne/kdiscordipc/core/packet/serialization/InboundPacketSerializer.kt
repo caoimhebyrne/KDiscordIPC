@@ -12,6 +12,7 @@ object InboundPacketSerializer : JsonContentPolymorphicSerializer<InboundPacket>
                 "READY" -> DispatchEventPacket.Ready.serializer()
                 "CURRENT_USER_UPDATE" -> DispatchEventPacket.UserUpdate.serializer()
                 "ACTIVITY_JOIN" -> DispatchEventPacket.ActivityJoin.serializer()
+                "ACTIVITY_INVITE" -> DispatchEventPacket.ActivityInvite.serializer()
                 else -> error("Unknown DISPATCH event: $event")
             }
             "SET_ACTIVITY" -> SetActivityPacket.serializer()

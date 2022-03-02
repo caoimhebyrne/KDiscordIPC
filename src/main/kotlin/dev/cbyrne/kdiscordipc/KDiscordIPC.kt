@@ -5,10 +5,7 @@ package dev.cbyrne.kdiscordipc
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.Event
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
-import dev.cbyrne.kdiscordipc.core.event.impl.ActivityJoinEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.*
 import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket
@@ -70,6 +67,7 @@ class KDiscordIPC(private val clientID: String) {
                 is DispatchEventPacket.Ready -> _events.emit(ReadyEvent(it.data))
                 is DispatchEventPacket.UserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
                 is DispatchEventPacket.ActivityJoin -> _events.emit(ActivityJoinEvent(it.data))
+                is DispatchEventPacket.ActivityInvite -> _events.emit(ActivityInviteEvent(it.data))
                 is ErrorPacket -> _events.emit(ErrorEvent(ErrorEventData(it.code, it.message)))
                 else -> _packets.emit(it)
             }
@@ -79,14 +77,14 @@ class KDiscordIPC(private val clientID: String) {
     @JvmName("onEvent")
     suspend inline fun <reified T : Event> on(noinline consumer: suspend T.() -> Unit) =
         events.filterIsInstance<T>().onEach { event ->
-                scope.launch { consumer(event) }
-            }.launchIn(scope)
+            scope.launch { consumer(event) }
+        }.launchIn(scope)
 
     @JvmName("onPacket")
     suspend inline fun <reified T : InboundPacket> on(noinline consumer: suspend T.() -> Unit) =
         packets.filterIsInstance<T>().onEach { event ->
-                scope.launch { consumer(event) }
-            }.launchIn(scope)
+            scope.launch { consumer(event) }
+        }.launchIn(scope)
 
     /**
      * Disconnects from the Discord IPC server
