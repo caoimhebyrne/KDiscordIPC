@@ -93,7 +93,7 @@ suspend fun main() {
 
                     accessToken = oauthResponse.accessToken
 
-                    saveOAuthResponse(oauthResponse)
+                    saveOAuthResponse(oauthResponse, dataFolder, authFile)
                 } else {
                     accessToken = timelessResponse.accessToken
                 }
@@ -135,7 +135,7 @@ suspend fun main() {
 
             accessToken = oauthResponse.accessToken
 
-            saveOAuthResponse(oauthResponse)
+            saveOAuthResponse(oauthResponse, dataFolder, authFile)
         }
 
         // Authenticate with the client and get an oauth token for the currently logged-in user
@@ -204,10 +204,10 @@ class TimelessOAuthResponse(
     )
 }
 
-fun saveOAuthResponse(response: OAuthResponse) {
-    val dir = File("${System.getenv("APPDATA")}/KDiscordIPC")
-    if (!dir.exists()) dir.mkdir()
-    File("${System.getenv("APPDATA")}/KDiscordIPC/authentication.json").writeText(
+fun saveOAuthResponse(response: OAuthResponse, directory: File, file: File) {
+
+    if (!directory.exists()) directory.mkdir()
+    file.writeText(
         json.encodeToString(
             TimelessOAuthResponse.serializer(), TimelessOAuthResponse(response)
         )

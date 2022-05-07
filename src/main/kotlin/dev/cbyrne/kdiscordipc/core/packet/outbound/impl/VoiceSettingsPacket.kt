@@ -12,8 +12,7 @@ data class GetVoiceSettingsPacket(
     override val cmd: String = "GET_VOICE_SETTINGS",
     override val args: Arguments? = null,
     override var nonce: String = "0"
-): OutboundPacket(){
-}
+): OutboundPacket()
 
 @Serializable
 data class SetVoiceSettingsPacket(
