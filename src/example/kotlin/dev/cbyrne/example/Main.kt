@@ -43,6 +43,7 @@ suspend fun main() {
 
         // Subscribe to some events
         ipc.subscribe(DiscordEvent.CurrentUserUpdate)
+        ipc.subscribe(DiscordEvent.VoiceSettingsUpdate)
         ipc.subscribe(DiscordEvent.ActivityJoinRequest)
         ipc.subscribe(DiscordEvent.ActivityJoin)
         ipc.subscribe(DiscordEvent.ActivityInvite)
@@ -56,44 +57,57 @@ suspend fun main() {
         val relationships = ipc.relationshipManager.getRelationships()
         logger.info("Relationships: ${relationships.size}")
 
+        //Folder and File where the access and refresh token will be saved so that they don't have to confirm every time
         val dataFolder = File(if(platform == Platform.WINDOWS) "${System.getenv("APPDATA")}/KDiscordIPC" else "${System.getenv("HOME")}/.KDiscordIPC")
         val authFile = File("${dataFolder.absolutePath}/authentication.json")
 
+        //http client for getting the access token
         val okHttpClient = OkHttpClient()
 
         var accessToken: String? = null
+
+        //If there is a previous token
         if (authFile.exists()) {
-            val timelessResponse = json.decodeFromString<TimelessOAuthResponse>(authFile.readText())
 
-            if (timelessResponse.expiresOn < Clock.System.now()) {
-                val refreshBody =
-                    MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("client_id", clientID)
-                        .addFormDataPart("client_secret", clientSecret).addFormDataPart("grant_type", "refresh_token")
-                        .addFormDataPart("refresh_token", timelessResponse.refreshToken).build()
+            try {
+                val timelessResponse = json.decodeFromString<TimelessOAuthResponse>(authFile.readText())
 
-                val refreshRequest = Request.Builder().header("Content-Type", "application/x-www-form-urlencoded")
-                    .url("https://discord.com/api/v8/oauth2/token").post(refreshBody).build()
+                //check if it's expired and if so get a new one with the refresh token
+                if (timelessResponse.expiresOn < Clock.System.now()) {
+                    val refreshBody =
+                        MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("client_id", clientID)
+                            .addFormDataPart("client_secret", clientSecret)
+                            .addFormDataPart("grant_type", "refresh_token")
+                            .addFormDataPart("refresh_token", timelessResponse.refreshToken).build()
 
-                val refreshResponse = okHttpClient.newCall(refreshRequest).execute()
-                if (!refreshResponse.isSuccessful) throw IOException("Unexpected code ${refreshResponse.code}")
+                    val refreshRequest = Request.Builder().header("Content-Type", "application/x-www-form-urlencoded")
+                        .url("https://discord.com/api/v8/oauth2/token").post(refreshBody).build()
 
-                if (refreshResponse.body == null) throw Exception("error while getting access token")
+                    val refreshResponse = okHttpClient.newCall(refreshRequest).execute()
+                    if (!refreshResponse.isSuccessful) throw IOException("Unexpected code ${refreshResponse.code}")
 
-                val oauthResponse = json.decodeFromString<OAuthResponse>(refreshResponse.body!!.string())
-                logger.info(oauthResponse)
+                    if (refreshResponse.body == null) throw Exception("error while getting access token")
 
-                accessToken = oauthResponse.accessToken
+                    val oauthResponse = json.decodeFromString<OAuthResponse>(refreshResponse.body!!.string())
+                    logger.info(oauthResponse)
 
-                saveOAuthResponse(oauthResponse)
-            } else {
-                accessToken = timelessResponse.accessToken
+                    accessToken = oauthResponse.accessToken
+
+                    saveOAuthResponse(oauthResponse)
+                } else {
+                    accessToken = timelessResponse.accessToken
+                }
+            } catch (exception: Exception) {
+                logger.error("Refresh token invalid")
             }
         }
 
+        //If token could not be fetched from saved credentials (missing authentication.json or invalid refresh token) get a new one by prompting the user
         if (accessToken == null) {
 
+            //Request authorization from the user. See https://discord.com/developers/docs/topics/rpc#authorize
             val authorization =
-                ipc.applicationManager.authorize(arrayOf("rpc", "rpc.voice.read", "identify"), "971413122470531142")
+                ipc.applicationManager.authorize(scopes = arrayOf("identify", "rpc", "rpc.voice.read"), "971413122470531142")
             logger.info("Authorization: $authorization")
 
             val body = MultipartBody.Builder()
@@ -124,15 +138,16 @@ suspend fun main() {
             saveOAuthResponse(oauthResponse)
         }
 
-        // Get an oauth token for the currently logged-in user
+        // Authenticate with the client and get an oauth token for the currently logged-in user
         val oauthToken = ipc.applicationManager.authenticate(accessToken)
         logger.info("Received oauth token from Discord! Expires on: ${oauthToken.expires}")
 
+        //Prints the current voice settings
         val voiceSettings = ipc.voiceSettingsManager.getVoiceSettings()
         logger.info("Voice Settings: $voiceSettings")
 
+        //Mutes the user
         ipc.voiceSettingsManager.setVoiceSettings(SetVoiceSettingsPacket.VoiceSettingArguments(mute = true))
-        ipc.voiceSettingsManager.subscribeToVoiceSettingsUpdate()
 
     }
 
