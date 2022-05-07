@@ -47,14 +47,12 @@ data class InputOutput(
     @SerialName("device_id") val deviceId: String? = null,
     val volume: Float? = null
 ){
-
     @Serializable
     data class Device(
         val id: String,
         val name: String
     )
 }
-
 @Serializable
 data class Mode(
     val type: String,
@@ -63,7 +61,6 @@ data class Mode(
     val shortcut: Array<ShortCutKeyCombo>,
     val delay: Float
 ) {
-
     @Serializable
     data class ShortCutKeyCombo(
         val type: Int,

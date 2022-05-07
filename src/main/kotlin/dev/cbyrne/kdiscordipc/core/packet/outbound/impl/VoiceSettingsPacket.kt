@@ -21,7 +21,6 @@ data class SetVoiceSettingsPacket(
     override val args: VoiceSettingArguments,
     override var nonce: String = "0"
 ): OutboundPacket(){
-
     @Serializable
     data class VoiceSettingArguments(
         override val input: InputOutput? = null,
