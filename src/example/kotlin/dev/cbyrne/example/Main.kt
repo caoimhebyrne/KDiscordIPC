@@ -154,6 +154,10 @@ suspend fun main() {
         ipc.activityManager.acceptInvite(data)
     }
 
+    ipc.on<VoiceSettingsUpdateEvent> {
+        logger.info("Voice settings updated! User is now ${if (this.data.mute) "" else "not "} muted")
+    }
+
     ipc.connect()
 }
 

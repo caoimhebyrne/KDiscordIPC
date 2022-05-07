@@ -29,16 +29,16 @@ interface VoiceSettingsInterface {
 
 @Serializable
 data class VoiceSettings(
-    override val input: InputOutput? = null,
-    override val output: InputOutput? = null,
-    override val mode: Mode? = null,
-    override val automaticGainControl: Boolean? = null,
-    override val echoCancellation: Boolean? = null,
-    override val noiseSuppression: Boolean? = null,
-    override val qos: Boolean? = null,
-    override val silenceWarnings: Boolean? = null,
-    override val mute: Boolean? = null,
-    override val deaf: Boolean? = null
+    override val input: InputOutput,
+    override val output: InputOutput,
+    override val mode: Mode,
+    @SerialName("automatic_gain_control") override val automaticGainControl: Boolean,
+    @SerialName("echo_cancellation") override val echoCancellation: Boolean,
+    @SerialName("noise_suppression") override val noiseSuppression: Boolean,
+    override val qos: Boolean,
+    @SerialName("silence_warning") override val silenceWarnings: Boolean,
+    override val mute: Boolean,
+    override val deaf: Boolean
 ): EventData(), VoiceSettingsInterface
 
 @Serializable

@@ -17,7 +17,6 @@ class VoiceSettingsManager(override val ipc: KDiscordIPC) : Manager() {
     override suspend fun init() {
         ipc.on<VoiceSettingsUpdateEvent> {
             currentVoiceSettings = this.data
-            println(currentVoiceSettings!!.mute)
         }
     }
 
