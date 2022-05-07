@@ -65,6 +65,7 @@ class KDiscordIPC(private val clientID: String) {
             when (it) {
                 is DispatchEventPacket.Ready -> _events.emit(ReadyEvent(it.data))
                 is DispatchEventPacket.UserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
+                is DispatchEventPacket.VoiceSettingsUpdate -> _events.emit(VoiceSettingsUpdateEvent(it.data))
                 is DispatchEventPacket.ActivityJoin -> _events.emit(ActivityJoinEvent(it.data))
                 is DispatchEventPacket.ActivityInvite -> _events.emit(ActivityInviteEvent(it.data))
                 is ErrorPacket -> _events.emit(ErrorEvent(ErrorEventData(it.code, it.message)))

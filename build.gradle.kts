@@ -29,7 +29,8 @@ dependencies {
     exampleImplementation(sourceSets.main.get().output)
 
     //For example
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("io.ktor:ktor-client-core:2.0.1")
+    implementation("io.ktor:ktor-client-cio:2.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
 
     // Log4J is only used in the example project as a backend for SLF4j

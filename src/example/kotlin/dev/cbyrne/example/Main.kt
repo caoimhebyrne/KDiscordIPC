@@ -8,13 +8,15 @@ import dev.cbyrne.kdiscordipc.core.util.Platform
 import dev.cbyrne.kdiscordipc.core.util.json
 import dev.cbyrne.kdiscordipc.core.util.platform
 import dev.cbyrne.kdiscordipc.data.activity.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import okhttp3.*
-import okio.IOException
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
@@ -43,7 +45,6 @@ suspend fun main() {
 
         // Subscribe to some events
         ipc.subscribe(DiscordEvent.CurrentUserUpdate)
-        ipc.subscribe(DiscordEvent.VoiceSettingsUpdate)
         ipc.subscribe(DiscordEvent.ActivityJoinRequest)
         ipc.subscribe(DiscordEvent.ActivityJoin)
         ipc.subscribe(DiscordEvent.ActivityInvite)
@@ -57,38 +58,36 @@ suspend fun main() {
         val relationships = ipc.relationshipManager.getRelationships()
         logger.info("Relationships: ${relationships.size}")
 
-        //Folder and File where the access and refresh token will be saved so that they don't have to confirm every time
-        val dataFolder = File(if(platform == Platform.WINDOWS) "${System.getenv("APPDATA")}/KDiscordIPC" else "${System.getenv("HOME")}/.KDiscordIPC")
+        // Folder and File where the access and refresh token will be saved so that they don't have to confirm every time
+        val dataFolder =
+            File(if (platform == Platform.WINDOWS) "${System.getenv("APPDATA")}/KDiscordIPC" else "${System.getenv("HOME")}/.KDiscordIPC")
         val authFile = File("${dataFolder.absolutePath}/authentication.json")
 
-        //http client for getting the access token
-        val okHttpClient = OkHttpClient()
+        // http client for getting the access token
+        val ktorClient = HttpClient()
 
         var accessToken: String? = null
 
-        //If there is a previous token
+        // If there is a previous token
         if (authFile.exists()) {
 
             try {
                 val timelessResponse = json.decodeFromString<TimelessOAuthResponse>(authFile.readText())
 
-                //check if it's expired and if so get a new one with the refresh token
+                // Check if it's expired and if so get a new one with the refresh token
                 if (timelessResponse.expiresOn < Clock.System.now()) {
-                    val refreshBody =
-                        MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("client_id", clientID)
-                            .addFormDataPart("client_secret", clientSecret)
-                            .addFormDataPart("grant_type", "refresh_token")
-                            .addFormDataPart("refresh_token", timelessResponse.refreshToken).build()
 
-                    val refreshRequest = Request.Builder().header("Content-Type", "application/x-www-form-urlencoded")
-                        .url("https://discord.com/api/v8/oauth2/token").post(refreshBody).build()
+                    val response = ktorClient.submitForm(
+                        url = "https://discord.com/api/v8/oauth2/token",
+                        formParameters = Parameters.build {
+                            append("client_id", clientID)
+                            append("client_secret", clientSecret)
+                            append("grant_type", "refresh_token")
+                            append("refresh_token", timelessResponse.refreshToken)
+                        }
+                    )
 
-                    val refreshResponse = okHttpClient.newCall(refreshRequest).execute()
-                    if (!refreshResponse.isSuccessful) throw IOException("Unexpected code ${refreshResponse.code}")
-
-                    if (refreshResponse.body == null) throw Exception("error while getting access token")
-
-                    val oauthResponse = json.decodeFromString<OAuthResponse>(refreshResponse.body!!.string())
+                    val oauthResponse = json.decodeFromString<OAuthResponse>(response.body())
                     logger.info(oauthResponse)
 
                     accessToken = oauthResponse.accessToken
@@ -102,35 +101,30 @@ suspend fun main() {
             }
         }
 
-        //If token could not be fetched from saved credentials (missing authentication.json or invalid refresh token) get a new one by prompting the user
+        // If token could not be fetched from saved credentials (missing authentication.json or invalid refresh token) get a new one by prompting the user
         if (accessToken == null) {
 
-            //Request authorization from the user. See https://discord.com/developers/docs/topics/rpc#authorize
+            // Request authorization from the user. See https://discord.com/developers/docs/topics/rpc#authorize
             val authorization =
-                ipc.applicationManager.authorize(scopes = arrayOf("identify", "rpc", "rpc.voice.read"), "971413122470531142")
+                ipc.applicationManager.authorize(
+                    scopes = arrayOf("identify", "rpc", "rpc.voice.read"),
+                    "971413122470531142"
+                )
             logger.info("Authorization: $authorization")
 
-            val body = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("client_id", clientID)
-                .addFormDataPart("client_secret", clientSecret)
-                .addFormDataPart("grant_type", "authorization_code")
-                .addFormDataPart("code", authorization.code)
-                .addFormDataPart("redirect_uri", "http://127.0.0.1")
-                .build()
+            val response = ktorClient.submitForm(
+                url = "https://discord.com/api/v8/oauth2/token",
+                formParameters = Parameters.build {
+                    append("client_id", clientID)
+                    append("client_secret", clientSecret)
+                    append("code", authorization.code)
+                    append("grant_type", "authorization_code")
+                    append("redirect_uri", "http://127.0.0.1")
+                }
+            )
 
-            val request = Request.Builder()
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .url("https://discord.com/api/v8/oauth2/token")
-                .post(body)
-                .build()
-
-            val response = okHttpClient.newCall(request).execute()
-            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-            if (response.body == null) throw Exception("error while getting access token")
-
-            val oauthResponse = json.decodeFromString<OAuthResponse>(response.body!!.string())
+            logger.info(response.body<String>())
+            val oauthResponse = json.decodeFromString<OAuthResponse>(response.body())
             logger.info(oauthResponse)
 
             accessToken = oauthResponse.accessToken
@@ -138,17 +132,20 @@ suspend fun main() {
             saveOAuthResponse(oauthResponse, dataFolder, authFile)
         }
 
+        ktorClient.close()
+
         // Authenticate with the client and get an oauth token for the currently logged-in user
         val oauthToken = ipc.applicationManager.authenticate(accessToken)
         logger.info("Received oauth token from Discord! Expires on: ${oauthToken.expires}")
 
-        //Prints the current voice settings
+        // Prints the current voice settings
         val voiceSettings = ipc.voiceSettingsManager.getVoiceSettings()
         logger.info("Voice Settings: $voiceSettings")
 
-        //Mutes the user
+        // Mutes the user
         ipc.voiceSettingsManager.setVoiceSettings(SetVoiceSettingsPacket.VoiceSettingArguments(mute = true))
 
+        ipc.voiceSettingsManager.subscribeToVoiceSettingsUpdate()
     }
 
     ipc.on<ErrorEvent> {
@@ -170,7 +167,7 @@ suspend fun main() {
     }
 
     ipc.on<VoiceSettingsUpdateEvent> {
-        logger.info("Voice settings updated! User is now ${if (this.data.mute) "" else "not "} muted")
+        logger.info("Voice settings updated! User is now ${if (this.data.mute) "" else "not "}muted")
     }
 
     ipc.connect()
