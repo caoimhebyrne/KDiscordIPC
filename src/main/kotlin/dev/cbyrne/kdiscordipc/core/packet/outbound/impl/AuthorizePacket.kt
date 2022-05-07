@@ -11,11 +11,13 @@ data class AuthorizePacket(
     override val opcode: Int = 0x01,
     override var nonce: String = "0"
 ): CommandPacket() {
-    constructor(scopes: Array<String>, clientID: String): this(args = Arguments(scopes, clientID))
+    constructor(scopes: Array<String>?, clientID: String?, rpcToken: String?, username: String?): this(args = Arguments(scopes, clientID, rpcToken, username))
 
     @Serializable
     data class Arguments(
-        val scopes: Array<String>,
-        @SerialName("client_id") val clientID: String
+        val scopes: Array<String>?,
+        @SerialName("client_id") val clientID: String?,
+        @SerialName("rpc_token") val rpcToken: String?,
+        val username: String?
     ): OutboundPacket.Arguments()
 }

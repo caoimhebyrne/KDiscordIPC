@@ -20,13 +20,13 @@ class ApplicationManager(override val ipc: KDiscordIPC) : Manager() {
      *
      * These bearer tokens are active for seven days, after which they will expire.
      */
-    suspend fun getOAuthToken(token: String): InboundAuthenticatePacket.Data {
+    suspend fun getOAuthToken(token: String? = null): InboundAuthenticatePacket.Data {
         val response: InboundAuthenticatePacket = ipc.sendPacket(AuthenticatePacket(token))
         return response.data
     }
 
-    suspend fun authorize(scopes: Array<String>, clientId: String): InboundAuthorizePacket.Data {
-        val response: InboundAuthorizePacket = ipc.sendPacket(AuthorizePacket(scopes, clientId))
+    suspend fun authorize(scopes: Array<String>? = null, clientId: String? = null, rpcToken: String? = null, username: String? = null): InboundAuthorizePacket.Data {
+        val response: InboundAuthorizePacket = ipc.sendPacket(AuthorizePacket(scopes, clientId, rpcToken, username))
         return response.data
     }
 }

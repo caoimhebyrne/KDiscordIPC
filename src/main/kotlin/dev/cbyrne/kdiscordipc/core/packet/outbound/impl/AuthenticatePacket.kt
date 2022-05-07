@@ -11,10 +11,10 @@ data class AuthenticatePacket(
     override val opcode: Int = 0x01,
     override var nonce: String = "0"
 ) : CommandPacket() {
-    constructor(token: String) : this(args = Arguments(token))
+    constructor(token: String?) : this(args = Arguments(token))
 
     @Serializable
     data class Arguments(
-        @SerialName("access_token") val token: String
+        @SerialName("access_token") val token: String?
     ) : OutboundPacket.Arguments()
 }
