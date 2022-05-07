@@ -5,16 +5,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthenticatePacket(
+data class AuthorizePacket(
     override val args: Arguments,
-    override val cmd: String = "AUTHENTICATE",
+    override val cmd: String = "AUTHORIZE",
     override val opcode: Int = 0x01,
     override var nonce: String = "0"
-) : CommandPacket() {
-    constructor(token: String) : this(args = Arguments(token))
+): CommandPacket() {
+    constructor(scopes: Array<String>, clientID: String): this(args = Arguments(scopes, clientID))
 
     @Serializable
     data class Arguments(
-        @SerialName("access_token") val token: String
-    ) : OutboundPacket.Arguments()
+        val scopes: Array<String>,
+        @SerialName("client_id") val clientID: String
+    ): OutboundPacket.Arguments()
 }

@@ -6,6 +6,7 @@ import dev.cbyrne.kdiscordipc.core.event.data.EventData
 import dev.cbyrne.kdiscordipc.core.event.data.ReadyEventData
 import dev.cbyrne.kdiscordipc.core.packet.inbound.CommandPacket
 import dev.cbyrne.kdiscordipc.data.user.User
+import dev.cbyrne.kdiscordipc.data.voiceSettings.VoiceSettings
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,6 +25,11 @@ abstract class DispatchEventPacket(
     @Serializable
     data class UserUpdate(
         override val data: User
+    ) : DispatchEventPacket()
+
+    @Serializable
+    data class VoiceSettingsUpdate(
+        override val data: VoiceSettings
     ) : DispatchEventPacket()
 
     @Serializable
