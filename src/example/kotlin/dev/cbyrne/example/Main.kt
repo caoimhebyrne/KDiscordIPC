@@ -125,7 +125,7 @@ suspend fun main() {
         }
 
         // Get an oauth token for the currently logged-in user
-        val oauthToken = ipc.applicationManager.getOAuthToken(accessToken)
+        val oauthToken = ipc.applicationManager.authenticate(accessToken)
         logger.info("Received oauth token from Discord! Expires on: ${oauthToken.expires}")
 
         val voiceSettings = ipc.voiceSettingsManager.getVoiceSettings()
