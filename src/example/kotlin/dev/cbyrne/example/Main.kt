@@ -5,6 +5,7 @@ import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.*
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SetVoiceSettingsPacket
 import dev.cbyrne.kdiscordipc.core.util.Platform
+import dev.cbyrne.kdiscordipc.core.util.json
 import dev.cbyrne.kdiscordipc.core.util.platform
 import dev.cbyrne.kdiscordipc.data.activity.*
 import kotlinx.datetime.Clock
@@ -12,7 +13,6 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import okhttp3.*
 import okio.IOException
 import org.apache.logging.log4j.LogManager
@@ -63,7 +63,7 @@ suspend fun main() {
 
         var accessToken: String? = null
         if (authFile.exists()) {
-            val timelessResponse = Json.decodeFromString<TimelessOAuthResponse>(authFile.readText())
+            val timelessResponse = json.decodeFromString<TimelessOAuthResponse>(authFile.readText())
 
             if (timelessResponse.expiresOn < Clock.System.now()) {
                 val refreshBody =
@@ -79,7 +79,7 @@ suspend fun main() {
 
                 if (refreshResponse.body == null) throw Exception("error while getting access token")
 
-                val oauthResponse = Json.decodeFromString<OAuthResponse>(refreshResponse.body!!.string())
+                val oauthResponse = json.decodeFromString<OAuthResponse>(refreshResponse.body!!.string())
                 logger.info(oauthResponse)
 
                 accessToken = oauthResponse.accessToken
@@ -116,7 +116,7 @@ suspend fun main() {
 
             if (response.body == null) throw Exception("error while getting access token")
 
-            val oauthResponse = Json.decodeFromString<OAuthResponse>(response.body!!.string())
+            val oauthResponse = json.decodeFromString<OAuthResponse>(response.body!!.string())
             logger.info(oauthResponse)
 
             accessToken = oauthResponse.accessToken
@@ -193,7 +193,7 @@ fun saveOAuthResponse(response: OAuthResponse) {
     val dir = File("${System.getenv("APPDATA")}/KDiscordIPC")
     if (!dir.exists()) dir.mkdir()
     File("${System.getenv("APPDATA")}/KDiscordIPC/authentication.json").writeText(
-        Json.encodeToString(
+        json.encodeToString(
             TimelessOAuthResponse.serializer(), TimelessOAuthResponse(response)
         )
     )
