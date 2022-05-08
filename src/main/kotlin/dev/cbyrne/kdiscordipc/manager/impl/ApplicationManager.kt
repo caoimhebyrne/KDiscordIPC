@@ -2,8 +2,10 @@ package dev.cbyrne.kdiscordipc.manager.impl
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.AuthenticatePacket
+import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.AuthorizePacket
 import dev.cbyrne.kdiscordipc.manager.Manager
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.AuthenticatePacket as InboundAuthenticatePacket
+import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.AuthorizePacket as InboundAuthorizePacket
 
 /**
  * This manager gives you access  to a bearer token for the currently connected Discord user, which you can then use against the Discord REST API.
@@ -18,8 +20,13 @@ class ApplicationManager(override val ipc: KDiscordIPC) : Manager() {
      *
      * These bearer tokens are active for seven days, after which they will expire.
      */
-    suspend fun getOAuthToken(): InboundAuthenticatePacket.Data {
-        val response: InboundAuthenticatePacket = ipc.sendPacket(AuthenticatePacket())
+    suspend fun authenticate(token: String? = null): InboundAuthenticatePacket.Data {
+        val response: InboundAuthenticatePacket = ipc.sendPacket(AuthenticatePacket(token))
+        return response.data
+    }
+
+    suspend fun authorize(scopes: Array<String>? = null, clientId: String? = null, rpcToken: String? = null, username: String? = null): InboundAuthorizePacket.Data {
+        val response: InboundAuthorizePacket = ipc.sendPacket(AuthorizePacket(scopes, clientId, rpcToken, username))
         return response.data
     }
 }

@@ -28,6 +28,11 @@ dependencies {
 
     exampleImplementation(sourceSets.main.get().output)
 
+    //For example
+    implementation("io.ktor:ktor-client-core:2.0.1")
+    implementation("io.ktor:ktor-client-cio:2.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+
     // Log4J is only used in the example project as a backend for SLF4j
     exampleImplementation(libs.log4j.core)
     exampleImplementation(libs.log4j.api)

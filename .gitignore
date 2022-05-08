@@ -26,3 +26,6 @@ run
 .DS_Store
 Thumbs.db
 transformed/*
+
+# secrets
+/src/example/kotlin/dev/cbyrne/example/Secrets.kt
