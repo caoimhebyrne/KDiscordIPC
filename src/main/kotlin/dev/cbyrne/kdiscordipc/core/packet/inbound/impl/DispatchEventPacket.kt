@@ -1,9 +1,6 @@
 package dev.cbyrne.kdiscordipc.core.packet.inbound.impl
 
-import dev.cbyrne.kdiscordipc.core.event.data.ActivityInviteEventData
-import dev.cbyrne.kdiscordipc.core.event.data.ActivityJoinEventData
-import dev.cbyrne.kdiscordipc.core.event.data.EventData
-import dev.cbyrne.kdiscordipc.core.event.data.ReadyEventData
+import dev.cbyrne.kdiscordipc.core.event.data.*
 import dev.cbyrne.kdiscordipc.core.packet.inbound.CommandPacket
 import dev.cbyrne.kdiscordipc.data.user.User
 import dev.cbyrne.kdiscordipc.data.voiceSettings.VoiceSettings
@@ -40,5 +37,10 @@ abstract class DispatchEventPacket(
     @Serializable
     data class ActivityInvite(
         override val data: ActivityInviteEventData
+    ) : DispatchEventPacket()
+
+    @Serializable
+    data class Error(
+        override val data: ErrorEventData
     ) : DispatchEventPacket()
 }
