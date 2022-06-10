@@ -3,45 +3,41 @@ package dev.cbyrne.kdiscordipc.core.socket.impl
 import dev.cbyrne.kdiscordipc.core.socket.RawPacket
 import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.util.reverse
+import org.newsclub.net.unix.AFUNIXSocket
+import org.newsclub.net.unix.AFUNIXSocketAddress
 import java.io.File
-import java.net.StandardProtocolFamily
-import java.net.UnixDomainSocketAddress
 import java.nio.ByteBuffer
-import java.nio.channels.SocketChannel
 
 class UnixSocket : Socket {
-    private val socket = SocketChannel.open(StandardProtocolFamily.UNIX)
+    private val socket = AFUNIXSocket.newInstance()
 
     override val connected: Boolean
         get() = socket.isConnected
 
     override fun connect(file: File) {
-        socket.connect(UnixDomainSocketAddress.of(file.absolutePath))
+        socket.connect(AFUNIXSocketAddress.of(file))
     }
 
     override fun read(): RawPacket {
-        val opcode = socket.readLittleEndianInt()
-        val length = socket.readLittleEndianInt()
-        val data = socket.readBytes(length)
+        val opcode = readLittleEndianInt()
+        val length = readLittleEndianInt()
+        val data = readBytes(length)
 
-        return RawPacket(opcode, length, data.array())
+        return RawPacket(opcode, length, data)
     }
 
-    private fun SocketChannel.readLittleEndianInt() =
-        readBytes(4).int.reverse()
+    private fun readLittleEndianInt() =
+        ByteBuffer.wrap(readBytes(4)).int.reverse()
 
-    private fun SocketChannel.readBytes(length: Int): ByteBuffer {
-        val data = ByteBuffer.allocate(length)
-        while (data.position() < data.limit()) {
-            read(data)
-        }
-        data.flip()
+    private fun readBytes(length: Int): ByteArray {
+        val array = ByteArray(length)
+        socket.inputStream.read(array, 0, length)
 
-        return data
+        return array
     }
 
     override fun write(bytes: ByteArray) {
-        socket.write(ByteBuffer.wrap(bytes))
+        socket.outputStream.write(bytes)
     }
 
     override fun close() {

@@ -12,8 +12,8 @@ supported
 
 - Easy to use Kotlin DSL
 - Coroutines based
-- Uses Java's [native socket library](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/net/UnixDomainSocketAddress.html)
-    - This means that KDiscordIPC will work on any platform that supports Java 16+ (and Discord)
+- KDiscordIPC will work on any platform that supports Java (and Discord), due to using [junixsocket](https://kohlschutter.github.io/junixsocket/), a library that has
+  support for many unix based operating systems, and architectures. On Windows, KDiscordIPC will use the [RandomAccessFile](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/io/RandomAccessFile.html) API
 - Aiming to have full interop with Discord's [GameSDK](https://discord.com/developers/docs/game-sdk/sdk-starter-guide)
 
 ## Install
