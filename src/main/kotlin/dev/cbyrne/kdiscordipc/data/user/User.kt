@@ -12,5 +12,5 @@ data class User(
     val avatar: String? = null,
     val bot: Boolean,
     val flags: Int,
-    @SerialName("premium_type") val premiumType: PremiumType
+    @SerialName("premium_type") val premiumType: PremiumType? = null
 ) : EventData()
