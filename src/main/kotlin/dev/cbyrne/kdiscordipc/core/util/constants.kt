@@ -13,4 +13,5 @@ val json = Json {
     explicitNulls = false
 }
 
-internal val currentPid = ManagementFactory.getRuntimeMXBean().pid
+// .getPid() is only available in Java 10+
+internal val currentPid = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toLong()
