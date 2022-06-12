@@ -119,8 +119,8 @@ fun Activity.largeImage(key: String, text: String? = null) {
     this.assets?.largeText = text
 }
 
-fun Activity.party(id: String, size: Activity.Party.PartySize) {
-    this.party = Activity.Party(id, size)
+fun Activity.party(id: String, currentSize: Int, maxSize: Int) {
+    this.party = Activity.Party(id, Activity.Party.PartySize(currentSize, maxSize))
 }
 
 fun Activity.secrets(join: String? = null, match: String? = null, spectate: String? = null) {
