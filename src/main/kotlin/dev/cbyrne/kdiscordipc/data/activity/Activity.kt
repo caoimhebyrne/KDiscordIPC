@@ -37,8 +37,14 @@ data class Activity(
     @Serializable
     data class Party(
         val id: String,
-        val size: List<Int>
-    )
+        val size: PartySize
+    ) {
+        @Serializable
+        data class PartySize(
+            val currentSize: Int,
+            val maxSize: Int
+        )
+    }
 
     @Serializable
     data class Secrets(
@@ -87,7 +93,7 @@ fun Activity.largeImage(key: String, text: String? = null) {
     this.assets?.largeText = text
 }
 
-fun Activity.party(id: String, size: List<Int>) {
+fun Activity.party(id: String, size: Activity.Party.PartySize) {
     this.party = Activity.Party(id, size)
 }
 
