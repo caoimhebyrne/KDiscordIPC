@@ -22,7 +22,7 @@ suspend fun main() {
             largeImage("https://avatars.githubusercontent.com/u/71222289?v=4", "KDiscordIPC")
             smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
 
-            party(UUID.randomUUID().toString(), listOf(1, 2))
+            party(UUID.randomUUID().toString(), 1, 2)
             secrets(UUID.randomUUID().toString())
 //            button("Click me", "https://google.com")
             timestamps(System.currentTimeMillis(), System.currentTimeMillis() + 50000)
