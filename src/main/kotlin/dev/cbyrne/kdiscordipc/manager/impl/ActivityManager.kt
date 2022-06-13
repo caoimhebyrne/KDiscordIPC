@@ -17,12 +17,16 @@ import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SetActivityPacket as Inbo
  * This manager allows you to set the current user's activity (a.k.a. rich presence)
  */
 class ActivityManager(override val ipc: KDiscordIPC) : Manager() {
+    var activity: Activity? = null
+        private set
+
     /**
      * Sets a user's presence in Discord to a new activity. This has a rate limit of 5 updates per 20 seconds.
      */
     suspend fun setActivity(activity: Activity?) {
         // TODO: Verify that the response had no errors
         ipc.sendPacket<InboundSetActivityPacket>(SetActivityPacket(currentPid, activity))
+        this.activity = activity
     }
 
     /**
