@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SetActivityPacket(
-    override val data: Data,
+    override val data: Data?,
     override val cmd: String = "SET_ACTIVITY",
     override val opcode: Int = 0x01,
     override val nonce: String = "0"
