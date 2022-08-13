@@ -17,7 +17,7 @@ data class InboundActivity(
     @SerialName("session_id")
     val sessionId: String,
     val state: String,
-    val timestamps: Timestamps,
+    val timestamps: Timestamps? = null,
     val type: Int
 ) {
     @Serializable
