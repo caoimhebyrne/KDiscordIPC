@@ -49,16 +49,17 @@ class KDiscordIPC(private val clientID: String) {
     /**
      * Connects to the Discord IPC server
      *
+     * @param index The discord IPC socket to connect to. i.e. $TMPDIR/discord-ipc-{index}
      * @see SocketHandler.connect
      */
-    suspend fun connect() {
+    suspend fun connect(index: Int = 0) {
         activityManager.init()
         applicationManager.init()
         relationshipManager.init()
         userManager.init()
         voiceSettingsManager.init()
 
-        socketHandler.connect()
+        socketHandler.connect(index)
         writePacket(HandshakePacket(1, clientID))
 
         socketHandler.events.collect {

@@ -24,7 +24,6 @@ class SocketHandler(private val ipc: KDiscordIPC) {
     val connected: Boolean
         get() = socket.connected
 
-    @Suppress("ControlFlowWithEmptyBody")
     val events = flow {
         while (connected) {
             val rawPacket = socket.read()
@@ -41,11 +40,11 @@ class SocketHandler(private val ipc: KDiscordIPC) {
      *
      * @see findIPCFile
      */
-    fun connect() {
+    fun connect(index: Int = 0) {
         if (socket.connected)
             throw ConnectionError.AlreadyConnected
 
-        socket.connect(findIPCFile())
+        socket.connect(findIPCFile(index))
     }
 
     /**
