@@ -7,8 +7,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.IntArraySerializer
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.*
 
@@ -25,8 +23,8 @@ data class Activity(
 ) {
     @Serializable
     data class Timestamps(
-        val start: Long,
-        val end: Long
+        var start: Long,
+        var end: Long
     )
 
     @Serializable
@@ -43,13 +41,13 @@ data class Activity(
 
     @Serializable
     data class Party(
-        val id: String,
-        val size: PartySize
+        var id: String,
+        var size: PartySize
     ) {
         @Serializable(with = PartySize.PartySizeSerializer::class)
         data class PartySize(
-            val currentSize: Int,
-            val maxSize: Int
+            var currentSize: Int,
+            var maxSize: Int
         ) {
             class PartySizeSerializer : KSerializer<PartySize> {
                 override val descriptor: SerialDescriptor =
@@ -74,15 +72,15 @@ data class Activity(
 
     @Serializable
     data class Secrets(
-        val join: String? = null,
-        val match: String? = null,
-        val spectate: String? = null
+        var join: String? = null,
+        var match: String? = null,
+        var spectate: String? = null
     )
 
     @Serializable
     data class Button(
-        val label: String,
-        val url: String
+        var label: String,
+        var url: String
     )
 }
 
