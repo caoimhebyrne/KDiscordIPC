@@ -18,8 +18,8 @@ import java.io.File
  * @see Socket
  * @see KDiscordIPC
  */
-class SocketHandler(private val ipc: KDiscordIPC) {
-    private val socket = Socket.get()
+class SocketHandler(private val ipc: KDiscordIPC, socketSupplier: () -> Socket) {
+    private val socket = socketSupplier()
 
     val connected: Boolean
         get() = socket.connected

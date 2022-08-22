@@ -13,6 +13,7 @@ import dev.cbyrne.kdiscordipc.core.packet.outbound.OutboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SubscribePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
+import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
 import dev.cbyrne.kdiscordipc.manager.impl.*
 import kotlinx.coroutines.CoroutineScope
@@ -24,10 +25,13 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as InboundSubscribePacket
 
-class KDiscordIPC(private val clientID: String) {
+class KDiscordIPC(
+    private val clientID: String,
+    socketSupplier: () -> Socket = Socket.Companion::get
+) {
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
 
-    private val socketHandler = SocketHandler(this)
+    private val socketHandler = SocketHandler(this, socketSupplier)
 
     val connected: Boolean
         get() = socketHandler.connected
