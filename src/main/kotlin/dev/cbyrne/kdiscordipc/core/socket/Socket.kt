@@ -26,7 +26,7 @@ interface Socket {
 object SocketProvider {
     @JvmStatic
     fun systemDefault(): Socket {
-        if (platform == Platform.OTHER)
+        if (platform == Platform.UNKNOWN)
             throw NotImplementedError()
 
         if (platform == Platform.WINDOWS)

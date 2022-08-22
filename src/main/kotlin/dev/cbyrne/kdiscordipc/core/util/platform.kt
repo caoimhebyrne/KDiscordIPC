@@ -1,13 +1,13 @@
 package dev.cbyrne.kdiscordipc.core.util
 
-enum class Platform {
+internal enum class Platform {
     WINDOWS,
     MACOS,
     LINUX,
-    OTHER
+    UNKNOWN
 }
 
-val platform: Platform
+internal val platform: Platform
     get() {
         val name = System.getProperty("os.name").lowercase()
         return if (name.contains("win")) {
@@ -17,6 +17,6 @@ val platform: Platform
         } else if (name.contains("nix") || name.contains("nux") || name.contains("aix")) {
             Platform.LINUX
         } else {
-            Platform.OTHER
+            Platform.UNKNOWN
         }
     }
