@@ -15,6 +15,10 @@ import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SubscribePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.core.socket.impl.UnixSocket
+import dev.cbyrne.kdiscordipc.core.socket.impl.WindowsSocket
+import dev.cbyrne.kdiscordipc.core.util.Platform
+import dev.cbyrne.kdiscordipc.core.util.platform
 import dev.cbyrne.kdiscordipc.manager.impl.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +31,15 @@ import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as Inboun
 
 class KDiscordIPC(
     private val clientID: String,
-    socketSupplier: () -> Socket = Socket.Companion::get
+    socketSupplier: () -> Socket = {
+        if (platform == Platform.OTHER)
+            throw NotImplementedError()
+
+        if (platform == Platform.WINDOWS)
+            WindowsSocket()
+
+        UnixSocket()
+    }
 ) {
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
 
