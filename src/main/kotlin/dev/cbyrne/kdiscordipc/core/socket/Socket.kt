@@ -1,5 +1,9 @@
 package dev.cbyrne.kdiscordipc.core.socket
 
+import dev.cbyrne.kdiscordipc.core.socket.impl.UnixSocket
+import dev.cbyrne.kdiscordipc.core.socket.impl.WindowsSocket
+import dev.cbyrne.kdiscordipc.core.util.Platform
+import dev.cbyrne.kdiscordipc.core.util.platform
 import java.io.File
 
 /**
@@ -17,4 +21,17 @@ interface Socket {
     fun read(): RawPacket
     fun write(bytes: ByteArray)
     fun close()
+}
+
+object SocketProvider {
+    @JvmStatic
+    fun systemDefault(): Socket {
+        if (platform == Platform.OTHER)
+            throw NotImplementedError()
+
+        if (platform == Platform.WINDOWS)
+            return WindowsSocket()
+
+        return UnixSocket()
+    }
 }

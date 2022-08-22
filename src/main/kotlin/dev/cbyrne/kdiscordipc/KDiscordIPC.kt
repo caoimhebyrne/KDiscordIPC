@@ -5,7 +5,12 @@ package dev.cbyrne.kdiscordipc
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.Event
 import dev.cbyrne.kdiscordipc.core.event.data.ErrorEventData
-import dev.cbyrne.kdiscordipc.core.event.impl.*
+import dev.cbyrne.kdiscordipc.core.event.impl.ActivityInviteEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ActivityJoinEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.VoiceSettingsUpdateEvent
 import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket
@@ -14,16 +19,22 @@ import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.HandshakePacket
 import dev.cbyrne.kdiscordipc.core.packet.outbound.impl.SubscribePacket
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
+import dev.cbyrne.kdiscordipc.core.socket.SocketProvider
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
-import dev.cbyrne.kdiscordipc.core.socket.impl.UnixSocket
-import dev.cbyrne.kdiscordipc.core.socket.impl.WindowsSocket
-import dev.cbyrne.kdiscordipc.core.util.Platform
-import dev.cbyrne.kdiscordipc.core.util.platform
-import dev.cbyrne.kdiscordipc.manager.impl.*
+import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
+import dev.cbyrne.kdiscordipc.manager.impl.ApplicationManager
+import dev.cbyrne.kdiscordipc.manager.impl.RelationshipManager
+import dev.cbyrne.kdiscordipc.manager.impl.UserManager
+import dev.cbyrne.kdiscordipc.manager.impl.VoiceSettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -31,15 +42,7 @@ import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as Inboun
 
 class KDiscordIPC(
     private val clientID: String,
-    socketSupplier: () -> Socket = {
-        if (platform == Platform.OTHER)
-            throw NotImplementedError()
-
-        if (platform == Platform.WINDOWS)
-            WindowsSocket()
-
-        UnixSocket()
-    }
+    socketSupplier: () -> Socket = SocketProvider::systemDefault
 ) {
     internal val logger = LoggerFactory.getLogger("KDiscordIPC")
 
