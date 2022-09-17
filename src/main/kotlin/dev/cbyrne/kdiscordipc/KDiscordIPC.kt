@@ -44,9 +44,11 @@ class KDiscordIPC(
     private val clientID: String,
     socketSupplier: () -> Socket = SocketProvider::systemDefault
 ) {
-    internal val logger = LoggerFactory.getLogger("KDiscordIPC")
+    companion object {
+        internal val logger = LoggerFactory.getLogger("KDiscordIPC")
+    }
 
-    private val socketHandler = SocketHandler(this, socketSupplier)
+    private val socketHandler = SocketHandler(socketSupplier)
 
     val connected: Boolean
         get() = socketHandler.connected
@@ -124,13 +126,13 @@ class KDiscordIPC(
     }
 
     internal fun writePacket(packet: OutboundPacket) {
-        val bytes = MessageToByteEncoder.encode(this, packet, null)
+        val bytes = MessageToByteEncoder.encode(packet, null)
         socketHandler.write(bytes)
     }
 
     internal suspend inline fun <reified T : InboundPacket> sendPacket(packet: OutboundPacket): T {
         val nonce = UUID.randomUUID().toString()
-        val bytes = MessageToByteEncoder.encode(this, packet, nonce)
+        val bytes = MessageToByteEncoder.encode(packet, nonce)
         socketHandler.write(bytes)
 
         return packets.filterIsInstance<T>().first { it.nonce == nonce }

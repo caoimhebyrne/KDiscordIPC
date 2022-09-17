@@ -7,14 +7,14 @@ import dev.cbyrne.kdiscordipc.core.util.json
 import kotlinx.serialization.decodeFromString
 
 object ByteToMessageDecoder {
-    fun decode(ipc: KDiscordIPC, packet: RawPacket): InboundPacket? {
+    fun decode(packet: RawPacket): InboundPacket? {
         try {
             val data = packet.data.decodeToString()
-            ipc.logger.debug("Decoding: $data")
+            KDiscordIPC.logger.debug("Decoding: $data")
 
             return json.decodeFromString<InboundPacket>(data)
         } catch (e: Exception) {
-            ipc.logger.error("Caught error when decoding packet (op: ${packet.opcode}, length: ${packet.length}) ", e)
+            KDiscordIPC.logger.error("Caught error when decoding packet (op: ${packet.opcode}, length: ${packet.length}) ", e)
         }
 
         return null

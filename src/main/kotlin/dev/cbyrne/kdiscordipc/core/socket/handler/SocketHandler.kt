@@ -18,7 +18,7 @@ import java.io.File
  * @see Socket
  * @see KDiscordIPC
  */
-class SocketHandler(private val ipc: KDiscordIPC, socketSupplier: () -> Socket) {
+class SocketHandler(socketSupplier: () -> Socket) {
     private val socket = socketSupplier()
 
     val connected: Boolean
@@ -27,7 +27,7 @@ class SocketHandler(private val ipc: KDiscordIPC, socketSupplier: () -> Socket) 
     val events = flow {
         while (connected) {
             val rawPacket = socket.read()
-            ByteToMessageDecoder.decode(ipc, rawPacket)?.let { emit(it) }
+            ByteToMessageDecoder.decode(rawPacket)?.let { emit(it) }
         }
     }.flowOn(Dispatchers.IO)
 
