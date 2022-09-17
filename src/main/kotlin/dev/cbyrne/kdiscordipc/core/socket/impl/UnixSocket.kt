@@ -19,10 +19,16 @@ class UnixSocket : Socket {
     }
 
     override fun read(): RawPacket {
+        val stream = socket.inputStream
         val opcode = readLittleEndianInt()
         val length = readLittleEndianInt()
-        val data = readBytes(length)
+        val pieces = mutableListOf(readBytes(stream.available()))
 
+        while (length > pieces.sumOf { it.size }) {
+            pieces.add(readBytes(stream.available()))
+        }
+
+        val data = pieces.flatten()
         return RawPacket(opcode, length, data)
     }
 
@@ -43,4 +49,14 @@ class UnixSocket : Socket {
     override fun close() {
         socket.close()
     }
+}
+
+private fun List<ByteArray>.flatten(): ByteArray {
+    var byteArray = ByteArray(0)
+
+    forEach {
+        byteArray += it
+    }
+
+    return byteArray
 }
