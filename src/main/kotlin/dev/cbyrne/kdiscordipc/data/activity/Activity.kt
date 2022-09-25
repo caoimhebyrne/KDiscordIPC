@@ -24,7 +24,7 @@ data class Activity(
     @Serializable
     data class Timestamps(
         var start: Long,
-        var end: Long
+        var end: Long?
     )
 
     @Serializable
@@ -97,7 +97,7 @@ fun Activity.button(label: String, url: String) {
     this.buttons?.add(Activity.Button(label, url))
 }
 
-fun Activity.timestamps(start: Long, end: Long) {
+fun Activity.timestamps(start: Long, end: Long? = null) {
     this.timestamps = Activity.Timestamps(start, end)
 }
 
