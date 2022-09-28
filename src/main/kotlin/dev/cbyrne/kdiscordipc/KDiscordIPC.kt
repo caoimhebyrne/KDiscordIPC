@@ -48,7 +48,9 @@ class KDiscordIPC(
         internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     }
 
-    private val socketHandler = SocketHandler(socketSupplier)
+    val scope = CoroutineScope(Job() + Dispatchers.IO)
+
+    private val socketHandler = SocketHandler(scope, socketSupplier)
 
     val connected: Boolean
         get() = socketHandler.connected
@@ -58,8 +60,6 @@ class KDiscordIPC(
     val relationshipManager = RelationshipManager(this)
     val userManager = UserManager(this)
     val voiceSettingsManager = VoiceSettingsManager(this)
-
-    val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     private val _events = MutableSharedFlow<Event>()
     val events = _events.asSharedFlow()
@@ -125,15 +125,14 @@ class KDiscordIPC(
         sendPacket<InboundSubscribePacket>(SubscribePacket(event))
     }
 
-    internal fun writePacket(packet: OutboundPacket) {
-        val bytes = MessageToByteEncoder.encode(packet, null)
+    private suspend fun writePacket(packet: OutboundPacket, nonce: String? = null) {
+        val bytes = MessageToByteEncoder.encode(packet, nonce)
         socketHandler.write(bytes)
     }
 
     internal suspend inline fun <reified T : InboundPacket> sendPacket(packet: OutboundPacket): T {
         val nonce = UUID.randomUUID().toString()
-        val bytes = MessageToByteEncoder.encode(packet, nonce)
-        socketHandler.write(bytes)
+        writePacket(packet, nonce)
 
         return packets.filterIsInstance<T>().first { it.nonce == nonce }
     }

@@ -7,9 +7,14 @@ import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.util.Platform
 import dev.cbyrne.kdiscordipc.core.util.platform
 import dev.cbyrne.kdiscordipc.core.util.temporaryDirectory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -18,8 +23,9 @@ import java.io.File
  * @see Socket
  * @see KDiscordIPC
  */
-class SocketHandler(socketSupplier: () -> Socket) {
+class SocketHandler(scope: CoroutineScope, socketSupplier: () -> Socket) {
     private val socket = socketSupplier()
+    private val outboundBytes = MutableSharedFlow<ByteArray>()
 
     val connected: Boolean
         get() = socket.connected
@@ -30,6 +36,12 @@ class SocketHandler(socketSupplier: () -> Socket) {
             ByteToMessageDecoder.decode(rawPacket)?.let { emit(it) }
         }
     }.flowOn(Dispatchers.IO)
+
+    init {
+        outboundBytes.onEach {
+            socket.write(it)
+        }.launchIn(scope)
+    }
 
     /**
      * Connects to the Discord IPC server.
@@ -60,11 +72,13 @@ class SocketHandler(socketSupplier: () -> Socket) {
      * @see Socket
      * @throws ConnectionError.NotConnected If the socket is closed, or, was never connected.
      */
-    fun write(bytes: ByteArray) {
+    suspend fun write(bytes: ByteArray) {
         if (!socket.connected)
             throw ConnectionError.NotConnected
 
-        socket.write(bytes)
+        withContext(Dispatchers.IO) {
+            outboundBytes.emit(bytes)
+        }
     }
 
     /**
