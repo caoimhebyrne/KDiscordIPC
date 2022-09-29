@@ -5,6 +5,7 @@ import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.util.reverse
 import org.newsclub.net.unix.AFUNIXSocket
 import org.newsclub.net.unix.AFUNIXSocketAddress
+import java.io.DataInputStream
 import java.io.File
 import java.nio.ByteBuffer
 
@@ -19,16 +20,13 @@ class UnixSocket : Socket {
     }
 
     override fun read(): RawPacket {
-        val stream = socket.inputStream
         val opcode = readLittleEndianInt()
         val length = readLittleEndianInt()
-        val pieces = mutableListOf(readBytes(stream.available()))
 
-        while (length > pieces.sumOf { it.size }) {
-            pieces.add(readBytes(stream.available()))
-        }
+        val stream = DataInputStream(socket.inputStream)
+        val data = ByteArray(length)
+        stream.readFully(data)
 
-        val data = pieces.flatten()
         return RawPacket(opcode, length, data)
     }
 
@@ -49,14 +47,4 @@ class UnixSocket : Socket {
     override fun close() {
         socket.close()
     }
-}
-
-private fun List<ByteArray>.flatten(): ByteArray {
-    var byteArray = ByteArray(0)
-
-    forEach {
-        byteArray += it
-    }
-
-    return byteArray
 }
