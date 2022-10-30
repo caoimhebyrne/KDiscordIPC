@@ -2,6 +2,7 @@ package dev.cbyrne.kdiscordipc.core.socket.handler
 
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.error.ConnectionError
+import dev.cbyrne.kdiscordipc.core.error.DecodeError
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.ByteToMessageDecoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.util.Platform
@@ -33,8 +34,16 @@ class SocketHandler(scope: CoroutineScope, socketSupplier: () -> Socket) {
 
     val events = flow {
         while (connected) {
-            val rawPacket = socket.read()
-            ByteToMessageDecoder.decode(rawPacket)?.let { emit(it) }
+            try {
+                val rawPacket = socket.read()
+                ByteToMessageDecoder.decode(rawPacket)?.let { emit(it) }
+            } catch (e: DecodeError) {
+                if (e is DecodeError.InvalidData) {
+                    throw ConnectionError.Disconnected
+                }
+            } catch (e: SocketException) {
+                throw ConnectionError.Disconnected
+            }
         }
     }.flowOn(Dispatchers.IO)
 

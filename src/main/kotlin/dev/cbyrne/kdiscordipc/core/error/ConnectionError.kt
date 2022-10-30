@@ -12,4 +12,7 @@ sealed class ConnectionError(reason: String) : Error(reason) {
 
     object Failed :
         ConnectionError("Failed to connect to socket.")
+
+    object Disconnected :
+        ConnectionError("The discord application disconnected from the socket.")
 }
