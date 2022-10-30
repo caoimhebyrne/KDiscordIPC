@@ -9,4 +9,7 @@ sealed class ConnectionError(reason: String) : Error(reason) {
 
     object NotConnected :
         ConnectionError("This socket has either been closed, or, was never connected.")
+
+    object Failed :
+        ConnectionError("Failed to connect to socket.")
 }

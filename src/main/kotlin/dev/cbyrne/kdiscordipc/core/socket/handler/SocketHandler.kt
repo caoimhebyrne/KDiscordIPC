@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.SocketException
 
 /**
  * A bridge between [KDiscordIPC] and the Discord IPC server.
@@ -56,7 +57,11 @@ class SocketHandler(scope: CoroutineScope, socketSupplier: () -> Socket) {
         if (socket.connected)
             throw ConnectionError.AlreadyConnected
 
-        socket.connect(findIPCFile(index))
+        try {
+            socket.connect(findIPCFile(index))
+        } catch (e: SocketException) {
+            throw ConnectionError.Failed
+        }
     }
 
     /**
