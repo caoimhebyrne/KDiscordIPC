@@ -7,12 +7,26 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.IntArraySerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.*
 
+object TextFieldSerializer : KSerializer<String> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("TextField", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): String = decoder.decodeString()
+
+    override fun serialize(encoder: Encoder, value: String) {
+        encoder.encodeString(value.padEnd(2, ' '))
+    }
+}
+
 @Serializable
 data class Activity(
+    @Serializable(with = TextFieldSerializer::class)
     var details: String,
+    @Serializable(with = TextFieldSerializer::class)
     var state: String,
     var timestamps: Timestamps? = null,
     var assets: Assets? = null,
@@ -31,10 +45,12 @@ data class Activity(
     data class Assets(
         @SerialName("large_image")
         var largeImage: String? = null,
+        @Serializable(with = TextFieldSerializer::class)
         @SerialName("large_text")
         var largeText: String? = null,
         @SerialName("small_image")
         var smallImage: String? = null,
+        @Serializable(with = TextFieldSerializer::class)
         @SerialName("small_text")
         var smallText: String? = null
     )
