@@ -43,7 +43,7 @@ import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as Inboun
 class KDiscordIPC(
     private val clientID: String,
     socketSupplier: () -> Socket = SocketProvider::systemDefault,
-    scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+    val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 ) {
     companion object {
         internal val logger = LoggerFactory.getLogger("KDiscordIPC")
