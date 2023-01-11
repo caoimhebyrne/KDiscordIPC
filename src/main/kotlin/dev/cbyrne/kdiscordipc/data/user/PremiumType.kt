@@ -23,7 +23,12 @@ enum class PremiumType(val index: Int) {
     /**
      * This user has 'Discord Nitro' ($10)
      */
-    Tier2(2);
+    Tier2(2),
+    
+    /**
+     * This user has 'Discord Nitro Basic' ($3)
+     */
+    Tier3(3);
 
     companion object {
         open class PremiumTypeSerializer : KSerializer<PremiumType> {
