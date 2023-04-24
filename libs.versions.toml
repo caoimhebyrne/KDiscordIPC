@@ -1,9 +1,9 @@
 [versions]
-kotlin = "1.6.10"
-kotlinx-serialization = "1.3.2"
-kotlinx-coroutines = "1.6.0"
+kotlin = "1.8.20"
+kotlinx-serialization = "1.5.0"
+kotlinx-coroutines = "1.7.0-RC"
 slf4j = "1.7.36"
-junixsocket = "2.5.0"
+junixsocket = "2.6.2"
 
 # Used for example, not included in KDiscordIPC
 log4j = "2.17.1"
