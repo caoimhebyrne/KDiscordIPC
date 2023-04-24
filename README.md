@@ -1,5 +1,7 @@
 # KDiscordIPC
 
+``Current version: 0.2.0``
+
 A lightweight and easy to use Discord IPC wrapper for Kotlin
 
 Many other Discord RPC / IPC libraries are either lacking in features, don't work on certain architectures or platforms,
@@ -18,11 +20,16 @@ supported
 
 ## Install
 
-**Maven repository coming soon!**
+You can add KDiscordIPC to your project via [Jitpack](https://jitpack.io).
 
-```groovy
+```kts
+repositories {
+    mavenCentral()
+    maven(url = "https://jitpack.io")
+}
+
 dependencies {
-    implementation("dev.cbyrne:kdiscordipc:1.0.0")
+    implementation("com.github.caoimhebyrne:KDiscordIPC:0.2.0")
 }
 ```
 
