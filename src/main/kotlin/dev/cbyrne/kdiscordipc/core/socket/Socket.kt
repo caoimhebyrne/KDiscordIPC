@@ -26,12 +26,11 @@ interface Socket {
 object SocketProvider {
     @JvmStatic
     fun systemDefault(): Socket {
-        if (platform == Platform.UNKNOWN)
-            throw NotImplementedError()
-
         if (platform == Platform.WINDOWS)
             return WindowsSocket()
 
+        // Anything that's non-Windows is assumed to be supported by junixsocket.
+        // If not, it will explode on its own :)
         return UnixSocket()
     }
 }
