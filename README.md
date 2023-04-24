@@ -48,8 +48,8 @@ ipc.connect()
 
 ## Maintainers
 
-[@cbyrneee](https://github.com/cbyrneee)
+[Caoimhe Byrne](https://github.com/caoimhebyrne)
 
 ## License
 
-MIT © 2022 Conor Byrne
+MIT © 2023 Caoimhe Byrne
