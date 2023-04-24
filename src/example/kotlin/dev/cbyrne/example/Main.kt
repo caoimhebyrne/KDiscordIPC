@@ -3,6 +3,7 @@ package dev.cbyrne.example
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.*
+import dev.cbyrne.kdiscordipc.core.event.impl.internal.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.data.activity.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -42,6 +43,10 @@ suspend fun main() {
         // Get the user's friend list
         val relationships = ipc.relationshipManager.getRelationships()
         logger.info("Relationships: ${relationships.size}")
+    }
+
+    ipc.on<DisconnectedEvent> {
+        logger.error("Disconnected!")
     }
 
     ipc.on<ErrorEvent> {

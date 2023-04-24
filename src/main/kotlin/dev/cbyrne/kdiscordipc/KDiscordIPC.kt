@@ -11,6 +11,7 @@ import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.VoiceSettingsUpdateEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.internal.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket
@@ -49,7 +50,11 @@ class KDiscordIPC(
         internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     }
 
-    private val socketHandler = SocketHandler(scope, socketSupplier)
+    private val socketHandler = SocketHandler(scope, socketSupplier) {
+        scope.launch {
+            this@KDiscordIPC._events.emit(DisconnectedEvent())
+        }
+    }
 
     val connected: Boolean
         get() = socketHandler.connected
