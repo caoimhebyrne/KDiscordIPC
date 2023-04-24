@@ -32,7 +32,7 @@ class ActivityManager(override val ipc: KDiscordIPC) : Manager() {
     /**
      * Sets a user's presence in Discord to a new activity. This has a rate limit of 5 updates per 20 seconds.
      */
-    suspend fun setActivity(details: String, state: String, init: Activity.() -> Unit) =
+    suspend fun setActivity(details: String? = null, state: String? = null, init: Activity.() -> Unit) =
         setActivity(activity(details, state, init))
 
     suspend fun acceptInvite(data: ActivityInviteEventData): Boolean {

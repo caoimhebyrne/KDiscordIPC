@@ -15,8 +15,8 @@ data class SetActivityPacket(
 ) : CommandPacket() {
     @Serializable
     data class Data(
-        val details: String,
-        val state: String,
+        val details: String?,
+        val state: String?,
         val timestamps: Activity.Timestamps? = null,
         val assets: Activity.Assets? = null,
         val party: Activity.Party? = null,

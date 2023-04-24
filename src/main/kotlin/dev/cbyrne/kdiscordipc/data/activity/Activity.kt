@@ -12,8 +12,8 @@ import kotlinx.serialization.encoding.*
 
 @Serializable
 data class Activity(
-    var details: String,
-    var state: String,
+    var details: String? = null,
+    var state: String? = null,
     var timestamps: Timestamps? = null,
     var assets: Assets? = null,
     var party: Party? = null,
@@ -85,8 +85,8 @@ data class Activity(
 }
 
 fun activity(
-    details: String,
-    state: String,
+    details: String? = null,
+    state: String? = null,
     init: Activity.() -> Unit
 ) = Activity(details, state).apply(init)
 

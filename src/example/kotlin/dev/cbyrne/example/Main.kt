@@ -19,7 +19,7 @@ suspend fun main() {
         logger.info("Ready! (${data.user.username}#${data.user.discriminator})")
 
         // Set the user's activity (a.k.a. rich presence)
-        ipc.activityManager.setActivity("Hello", "world") {
+        ipc.activityManager.setActivity("Hello") {
             largeImage("https://avatars.githubusercontent.com/u/71222289?v=4", "KDiscordIPC")
             smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
 
