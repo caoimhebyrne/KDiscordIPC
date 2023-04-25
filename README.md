@@ -1,6 +1,6 @@
 # KDiscordIPC
 
-``Current version: 0.2.0``
+``Current version: 0.2.1``
 
 A lightweight and easy to use Discord IPC wrapper for Kotlin
 
@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.caoimhebyrne:KDiscordIPC:0.2.0")
+    implementation("com.github.caoimhebyrne:KDiscordIPC:0.2.1")
 }
 ```
 
