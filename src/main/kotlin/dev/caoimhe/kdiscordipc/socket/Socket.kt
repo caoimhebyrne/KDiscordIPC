@@ -1,7 +1,7 @@
 package dev.caoimhe.kdiscordipc.socket
 
 import java.nio.file.Path
-import dev.caoimhe.kdiscordipc.socket.exception.SocketException
+import dev.caoimhe.kdiscordipc.exception.SocketException
 
 /**
  * An abstract socket, used for communicating with the Discord client.
@@ -18,6 +18,7 @@ interface Socket {
      *
      * @throws SocketException
      */
+    @Throws(SocketException::class)
     fun connect(file: Path)
 
     /**
@@ -25,6 +26,7 @@ interface Socket {
      *
      * @throws SocketException
      */
+    @Throws(SocketException::class)
     fun disconnect()
 
     // TODO: Writing/reading functions

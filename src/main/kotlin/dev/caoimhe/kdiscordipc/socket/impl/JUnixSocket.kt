@@ -1,7 +1,7 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
 import dev.caoimhe.kdiscordipc.socket.Socket
-import dev.caoimhe.kdiscordipc.socket.exception.SocketException
+import dev.caoimhe.kdiscordipc.exception.SocketException
 import org.newsclub.net.unix.AFUNIXSocket
 import org.newsclub.net.unix.AFUNIXSocketAddress
 import java.io.IOException
@@ -17,6 +17,7 @@ class JUnixSocket : Socket {
     override val isConnected: Boolean
         get() = socket.isConnected
 
+    @Throws(SocketException::class)
     override fun connect(file: Path) {
         try {
             socket.connect(AFUNIXSocketAddress.of(file))
@@ -26,6 +27,7 @@ class JUnixSocket : Socket {
         }
     }
 
+    @Throws(SocketException::class)
     override fun disconnect() {
         try {
             socket.close()

@@ -31,5 +31,12 @@ enum class OperatingSystem {
                 else -> Other
             }
         }
+
+        /**
+         * Returns the value of XDG_RUNTIME_DIR, or TMPDIR, or TMP
+         */
+        fun unixTemporaryDirectory(): String {
+            return System.getenv("XDG_RUNTIME_DIR") ?: System.getenv("TMPDIR") ?: System.getenv("TMP")
+        }
     }
 }

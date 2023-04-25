@@ -1,4 +1,4 @@
-package dev.caoimhe.kdiscordipc.socket.exception
+package dev.caoimhe.kdiscordipc.exception
 
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -20,7 +20,7 @@ sealed class SocketException(message: String = DEFAULT_SOCKET_EXCEPTION_MESSAGE)
     /**
      * Thrown when we are unable to find the socket file
      */
-    class NotFound(path: Path) : SocketException("Unable to locate file ${path.absolutePathString()}")
+    class NotFound(path: Path? = null) : SocketException("Unable to locate file ${path?.absolutePathString() ?: "<unknown>"}")
 
     /**
      * When we are not allowed to read to/write from the socket

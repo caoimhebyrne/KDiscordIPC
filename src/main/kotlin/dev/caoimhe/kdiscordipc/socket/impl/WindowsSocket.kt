@@ -1,7 +1,7 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
 import dev.caoimhe.kdiscordipc.socket.Socket
-import dev.caoimhe.kdiscordipc.socket.exception.SocketException
+import dev.caoimhe.kdiscordipc.exception.SocketException
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.RandomAccessFile

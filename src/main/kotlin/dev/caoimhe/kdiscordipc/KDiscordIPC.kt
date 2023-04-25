@@ -1,5 +1,7 @@
 package dev.caoimhe.kdiscordipc
 
+import dev.caoimhe.kdiscordipc.channel.MessageChannel
+import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.provider.SocketImplementationProvider
 import dev.caoimhe.kdiscordipc.socket.provider.impl.SystemSocketProvider
 import kotlinx.coroutines.CoroutineScope
@@ -19,13 +21,27 @@ import org.slf4j.LoggerFactory
 class KDiscordIPC(
     private val clientID: String,
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO),
-    socketImplementationProvider: SocketImplementationProvider = SystemSocketProvider
+    private val socketImplementationProvider: SocketImplementationProvider = SystemSocketProvider,
 ) {
     /**
-     * Attempts to connect to the Discord client.
+     * Used for sending/reading messages through the socket
      */
+    private val channel = MessageChannel(socketImplementationProvider.provide())
+
+    /**
+     * Attempts to connect to the Discord client.
+     *
+     * @throws SocketException
+     */
+    @Throws(SocketException::class)
     suspend fun connect() {
-        // 1. Validate client ID
+        // TODO: 1. Validate client ID
+
+        // 2. Connect to the socket via the determined location
+        val location = socketImplementationProvider.determineLocation()
+        channel.connect(location)
+
+        // 3. Send the handshake
     }
 
     companion object {
