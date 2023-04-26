@@ -1,5 +1,6 @@
 package dev.caoimhe.kdiscordipc.socket
 
+import dev.caoimhe.kdiscordipc.channel.message.RawMessage
 import java.nio.file.Path
 import dev.caoimhe.kdiscordipc.exception.SocketException
 
@@ -29,5 +30,17 @@ interface Socket {
     @Throws(SocketException::class)
     fun disconnect()
 
-    // TODO: Writing/reading functions
+    /**
+     * Attempts to read a raw message from the socket
+     */
+    @Throws(SocketException::class)
+    fun read(): RawMessage
+
+    /**
+     * Attempts to write data to the socket
+     *
+     * @throws SocketException
+     */
+    @Throws(SocketException::class)
+    fun write(data: ByteArray)
 }

@@ -1,7 +1,8 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
-import dev.caoimhe.kdiscordipc.socket.Socket
+import dev.caoimhe.kdiscordipc.channel.message.RawMessage
 import dev.caoimhe.kdiscordipc.exception.SocketException
+import dev.caoimhe.kdiscordipc.socket.Socket
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -10,7 +11,7 @@ import java.nio.file.Path
 /**
  * Uses [RandomAccessFile] to communicate with a specified file.
  */
-class WindowsSocket: Socket {
+class WindowsSocket : Socket {
     private lateinit var randomAccessFile: RandomAccessFile
     private var connected: Boolean = false
 
@@ -35,6 +36,22 @@ class WindowsSocket: Socket {
 
         try {
             randomAccessFile.close()
+        } catch (e: IOException) {
+            if (isClosedException(e)) {
+                throw SocketException.Closed
+            }
+
+            throw SocketException.Generic(e)
+        }
+    }
+
+    override fun read(): RawMessage {
+        TODO("Not yet implemented")
+    }
+
+    override fun write(data: ByteArray) {
+        try {
+            randomAccessFile.write(data)
         } catch (e: IOException) {
             if (isClosedException(e)) {
                 throw SocketException.Closed

@@ -1,6 +1,7 @@
 package dev.caoimhe.kdiscordipc
 
 import dev.caoimhe.kdiscordipc.channel.MessageChannel
+import dev.caoimhe.kdiscordipc.channel.message.outbound.HandshakeMessage
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.provider.SocketImplementationProvider
 import dev.caoimhe.kdiscordipc.socket.provider.impl.SystemSocketProvider
@@ -42,6 +43,7 @@ class KDiscordIPC(
         channel.connect(location)
 
         // 3. Send the handshake
+        channel.send(HandshakeMessage(clientID))
     }
 
     companion object {
@@ -50,4 +52,9 @@ class KDiscordIPC(
          */
         internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     }
+}
+
+suspend fun main() {
+    val ipc = KDiscordIPC("1100847786448146505")
+    ipc.connect()
 }
