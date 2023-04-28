@@ -1,0 +1,18 @@
+{
+  "v": 1,
+  "config": {
+    "cdn_host": "cdn.discordapp.com",
+    "api_endpoint": "//discord.com/api",
+    "environment": "production"
+  },
+  "user": {
+    "id": "843135686173392946",
+    "username": "caoimhe",
+    "discriminator": "0001",
+    "avatar": "e8c70747e04d007bf36b8dfd91452a8c",
+    "avatar_decoration": "v2_a_37dc2b53b273a457ff19ac2e3fda7e4c",
+    "bot": false,
+    "flags": 4194480,
+    "premium_type": 2
+  }
+}
