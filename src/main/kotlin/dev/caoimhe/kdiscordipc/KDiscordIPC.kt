@@ -3,7 +3,9 @@ package dev.caoimhe.kdiscordipc
 import dev.caoimhe.kdiscordipc.channel.MessageChannel
 import dev.caoimhe.kdiscordipc.channel.message.inbound.DispatchMessageData
 import dev.caoimhe.kdiscordipc.channel.message.outbound.HandshakeMessage
+import dev.caoimhe.kdiscordipc.channel.message.outbound.SubscribeMessage
 import dev.caoimhe.kdiscordipc.event.data.Event
+import dev.caoimhe.kdiscordipc.event.data.EventData
 import dev.caoimhe.kdiscordipc.event.data.impl.ReadyEventData
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.provider.SocketImplementationProvider
@@ -12,10 +14,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 /**
@@ -35,17 +37,26 @@ class KDiscordIPC(
     /**
      * Used for sending/reading messages through the socket
      */
-    private val channel = MessageChannel(socketImplementationProvider.provide())
+    private val channel = MessageChannel(scope, socketImplementationProvider.provide())
 
     /**
      * Used for dispatching events to listeners
      */
-    private val _events = MutableSharedFlow<Event<*>>()
+    private val _events = MutableSharedFlow<EventData>()
 
     /**
-     * Used for dispatching events to listeners
+     * The events that we are currently / about to subscribe to
      */
-    val events = _events.asSharedFlow()
+    private val subscribedEvents = mutableSetOf<Event<*>>()
+
+    init {
+        // Subscribe to any events when we are ready :)
+        this.onReady {
+            subscribedEvents.forEach {
+                channel.send(SubscribeMessage(it))
+            }
+        }
+    }
 
     /**
      * Attempts to connect to the Discord client.
@@ -63,15 +74,12 @@ class KDiscordIPC(
         // 3. Send the handshake
         channel.send(HandshakeMessage(clientID))
 
-        // Attempt to dispatch any events/packets received
+        // 4. Attempt to dispatch any events/packets received
         channel.messages.collect {
             when (it.data) {
                 // When we receive the DISPATCH message, the client has sent us a new event!
                 is DispatchMessageData<*> -> {
-                    when (val data = it.data.data) {
-                        is ReadyEventData -> _events.emit(Event.Ready(data))
-                        else -> error("Unknown event ${it.data.event}")
-                    }
+                    _events.emit(it.data.data)
                 }
             }
         }
@@ -84,17 +92,28 @@ class KDiscordIPC(
      * ipc.on<Event.Ready> {}
      * ```
      */
-    inline fun onReady(crossinline callback: (ReadyEventData) -> Unit) =
-        on<Event.Ready> { callback(it.data) }
+    fun onReady(callback: suspend (ReadyEventData) -> Unit) =
+        on(Event.Ready, callback)
 
     /**
      * Fired when we receive an event from the Discord client
      */
-    inline fun <reified T : Event<*>> on(crossinline callback: (T) -> Unit) =
-        events.filterIsInstance<T>()
-            .onEach { event ->
-                callback(event)
+    inline fun <reified T> on(event: Event<T>, noinline callback: suspend (T) -> Unit) =
+        on(event, T::class.java, callback)
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> on(event: Event<T>, clazz: Class<T>, callback: suspend (T) -> Unit) {
+        if (event.subscribed) {
+            logger.info("Will subscribe to ${event.id}!")
+            subscribedEvents.add(event)
+        }
+
+        _events
+            .filter { clazz.isInstance(it) }
+            .onEach { data ->
+                scope.launch { callback(data as T) }
             }.launchIn(scope)
+    }
 
     companion object {
         /**
