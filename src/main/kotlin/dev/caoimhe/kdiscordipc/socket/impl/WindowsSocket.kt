@@ -3,10 +3,10 @@ package dev.caoimhe.kdiscordipc.socket.impl
 import dev.caoimhe.kdiscordipc.channel.message.RawMessage
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.Socket
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.RandomAccessFile
-import java.nio.file.Path
 
 /**
  * Uses [RandomAccessFile] to communicate with a specified file.
@@ -18,9 +18,9 @@ class WindowsSocket : Socket {
     override val isConnected: Boolean
         get() = connected
 
-    override fun connect(file: Path) {
+    override fun connect(file: File) {
         try {
-            randomAccessFile = RandomAccessFile(file.toFile(), "rw")
+            randomAccessFile = RandomAccessFile(file, "rw")
             connected = true
         } catch (e: FileNotFoundException) {
             // Thrown if we can't find the socket

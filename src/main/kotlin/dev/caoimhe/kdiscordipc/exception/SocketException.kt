@@ -1,7 +1,6 @@
 package dev.caoimhe.kdiscordipc.exception
 
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
+import java.io.File
 
 internal const val DEFAULT_SOCKET_EXCEPTION_MESSAGE = "An unknown socket error has occurred"
 
@@ -20,12 +19,12 @@ sealed class SocketException(message: String = DEFAULT_SOCKET_EXCEPTION_MESSAGE)
     /**
      * Thrown when we are unable to find the socket file
      */
-    class NotFound(path: Path? = null) : SocketException("Unable to locate file ${path?.absolutePathString() ?: "<unknown>"}")
+    class NotFound(file: File? = null) : SocketException("Unable to locate file ${file?.absolutePath ?: "<unknown>"}")
 
     /**
      * When we are not allowed to read to/write from the socket
      */
-    class NotAllowed(path: Path) : SocketException("We do not have permission to access ${path.absolutePathString()}")
+    class NotAllowed(file: File) : SocketException("We do not have permission to access ${file.absolutePath}")
 
     /**
      * When the socket was not known as closed, but we failed to read/write from/to it due to it being closed.

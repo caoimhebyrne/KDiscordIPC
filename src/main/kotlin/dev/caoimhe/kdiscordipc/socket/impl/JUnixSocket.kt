@@ -1,15 +1,14 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
 import dev.caoimhe.kdiscordipc.channel.message.RawMessage
-import dev.caoimhe.kdiscordipc.socket.Socket
 import dev.caoimhe.kdiscordipc.exception.SocketException
-import dev.caoimhe.kdiscordipc.utils.readBytes
+import dev.caoimhe.kdiscordipc.socket.Socket
 import dev.caoimhe.kdiscordipc.utils.readLittleEndianInt
 import org.newsclub.net.unix.AFUNIXSocket
 import org.newsclub.net.unix.AFUNIXSocketAddress
 import java.io.DataInputStream
+import java.io.File
 import java.io.IOException
-import java.nio.file.Path
 import java.net.SocketException as JavaNetSocketException
 
 /**
@@ -22,7 +21,7 @@ class JUnixSocket : Socket {
         get() = socket.isConnected
 
     @Throws(SocketException::class)
-    override fun connect(file: Path) {
+    override fun connect(file: File) {
         try {
             socket.connect(AFUNIXSocketAddress.of(file))
         } catch (e: JavaNetSocketException) {

@@ -3,7 +3,7 @@ package dev.caoimhe.kdiscordipc.channel
 import dev.caoimhe.kdiscordipc.channel.message.Message
 import dev.caoimhe.kdiscordipc.channel.message.serializer.MessageToByteEncoder
 import dev.caoimhe.kdiscordipc.socket.Socket
-import java.nio.file.Path
+import java.io.File
 
 /**
  * Used for sending/reading messages through the socket.
@@ -16,7 +16,7 @@ class MessageChannel(
     /**
      * Establishes a connection with the Discord client through the [socket].
      */
-    fun connect(file: Path) {
+    fun connect(file: File) {
         // TODO: Error handling
 
         socket.connect(file)

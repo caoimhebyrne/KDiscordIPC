@@ -5,9 +5,7 @@ import dev.caoimhe.kdiscordipc.socket.impl.JUnixSocket
 import dev.caoimhe.kdiscordipc.socket.impl.WindowsSocket
 import dev.caoimhe.kdiscordipc.socket.provider.SocketImplementationProvider
 import dev.caoimhe.kdiscordipc.utils.OperatingSystem
-import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.exists
+import java.io.File
 
 /**
  * Provides a socket to be used for communicating with the Discord client.
@@ -37,7 +35,7 @@ object SystemSocketProvider : SocketImplementationProvider {
      * @throws SocketException.NotFound If the socket file could not be found.
      */
     @Throws(SocketException.NotFound::class)
-    override fun determineLocation(index: Int): Path {
+    override fun determineLocation(index: Int): File {
         // Discord doesn't allow more than 9 sockets to be open
         if (index > 9)
             throw SocketException.NotFound()
@@ -47,7 +45,7 @@ object SystemSocketProvider : SocketImplementationProvider {
         else
             OperatingSystem.unixTemporaryDirectory()
 
-        val file = Path(base, "discord-ipc-${index}")
+        val file = File(base, "discord-ipc-${index}")
         return file.takeIf { it.exists() } ?: determineLocation(index + 1)
     }
 }
