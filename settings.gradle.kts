@@ -8,3 +8,5 @@ dependencyResolutionManagement {
         }
     }
 }
+
+include("example")

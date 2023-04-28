@@ -47,6 +47,7 @@ class KDiscordIPC(
 
         // 4. TODO: Dispatch events/any received information
         channel.messages.collect {
+            logger.debug("Decoded: {}", it.data)
         }
     }
 
@@ -56,9 +57,4 @@ class KDiscordIPC(
          */
         internal val logger = LoggerFactory.getLogger("KDiscordIPC")
     }
-}
-
-suspend fun main() {
-    val ipc = KDiscordIPC("1100847786448146505")
-    ipc.connect()
 }
