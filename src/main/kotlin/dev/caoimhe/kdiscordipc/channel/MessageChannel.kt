@@ -1,8 +1,11 @@
 package dev.caoimhe.kdiscordipc.channel
 
+import dev.caoimhe.kdiscordipc.KDiscordIPC
 import dev.caoimhe.kdiscordipc.channel.message.Message
+import dev.caoimhe.kdiscordipc.channel.message.serializer.ByteToMessageDecoder
 import dev.caoimhe.kdiscordipc.channel.message.serializer.MessageToByteEncoder
 import dev.caoimhe.kdiscordipc.socket.Socket
+import kotlinx.coroutines.flow.flow
 import java.io.File
 
 /**
@@ -13,6 +16,18 @@ import java.io.File
 class MessageChannel(
     private val socket: Socket
 ) {
+    /**
+     * A flow of messages being read from the Discord client
+     */
+    val messages = flow {
+        while (socket.isConnected) {
+            val message = ByteToMessageDecoder.decode(socket.read())
+            KDiscordIPC.logger.debug("Received: \n{}", message.prettyDebugInfo())
+
+            emit(message)
+        }
+    }
+
     /**
      * Establishes a connection with the Discord client through the [socket].
      */

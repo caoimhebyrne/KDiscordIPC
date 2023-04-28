@@ -1,0 +1,15 @@
+<Configuration status="info">
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%cyan{%d{HH:mm:ss.SSS}} | %style{%highlight{%level}}{bright} %logger %cyan{>} %msg%n"
+            />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="stdout"/>
+        </Root>
+    </Loggers>
+</Configuration>

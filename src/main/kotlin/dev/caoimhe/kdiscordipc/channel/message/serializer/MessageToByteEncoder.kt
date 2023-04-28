@@ -1,8 +1,8 @@
 package dev.caoimhe.kdiscordipc.channel.message.serializer
 
+import dev.caoimhe.kdiscordipc.KDiscordIPC
 import dev.caoimhe.kdiscordipc.channel.message.Message
 import dev.caoimhe.kdiscordipc.utils.reverse
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.nio.ByteBuffer
 
@@ -27,6 +27,8 @@ object MessageToByteEncoder {
      */
     fun <T> encode(message: Message.Outbound<T>): ByteArray {
         val data = json.encodeToString(message.serializer, message.data)
+        KDiscordIPC.logger.debug("Encoding: \n{}", message.prettyDebugInfo())
+
         val bytes = data.encodeToByteArray()
 
         // The structure of the bytes is as follows:

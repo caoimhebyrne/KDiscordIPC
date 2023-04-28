@@ -19,6 +19,11 @@ dependencies {
 
     implementation(libs.slf4j.api)
     implementation(libs.junixsocket.core)
+
+    // TODO: Move this to an example project
+    implementation(libs.log4j.core)
+    implementation(libs.log4j.api)
+    implementation(libs.log4j.slf4j)
 }
 
 publishing {

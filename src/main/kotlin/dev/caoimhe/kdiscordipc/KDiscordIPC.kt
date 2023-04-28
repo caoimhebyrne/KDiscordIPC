@@ -36,7 +36,7 @@ class KDiscordIPC(
      */
     @Throws(SocketException::class)
     suspend fun connect() {
-        // TODO: 1. Validate client ID
+        // 1. TODO: Validate client ID
 
         // 2. Connect to the socket via the determined location
         val location = socketImplementationProvider.determineLocation()
@@ -44,6 +44,11 @@ class KDiscordIPC(
 
         // 3. Send the handshake
         channel.send(HandshakeMessage(clientID))
+
+        // 4. TODO: Dispatch events/any received information
+        channel.messages.collect {
+            logger.debug("{}", it)
+        }
     }
 
     companion object {
