@@ -3,6 +3,7 @@ package dev.caoimhe.kdiscordipc.socket.impl
 import dev.caoimhe.kdiscordipc.channel.message.RawMessage
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.Socket
+import dev.caoimhe.kdiscordipc.utils.readLittleEndianInt
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -46,7 +47,15 @@ class WindowsSocket : Socket {
     }
 
     override fun read(): RawMessage {
-        TODO("Not yet implemented")
+        // The first two integers are the opcode and the length
+        val opcode = randomAccessFile.readLittleEndianInt()
+        val length = randomAccessFile.readLittleEndianInt()
+
+        // Read the actual message data
+        val data = ByteArray(length)
+        randomAccessFile.readFully(data)
+
+        return RawMessage(opcode, length, data)
     }
 
     override fun write(data: ByteArray) {
