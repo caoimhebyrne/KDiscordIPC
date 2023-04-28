@@ -1,5 +1,6 @@
 package dev.caoimhe.kdiscordipc.channel.message.serializer
 
+import dev.caoimhe.kdiscordipc.KDiscordIPC
 import dev.caoimhe.kdiscordipc.channel.message.Message
 import dev.caoimhe.kdiscordipc.channel.message.inbound.InboundMessageData
 import kotlinx.serialization.decodeFromString
@@ -19,8 +20,9 @@ object ByteToMessageDecoder {
      */
     fun decode(message: Message.Raw): Message.Inbound {
         val string = message.data.decodeToString()
-        val data = json.decodeFromString<InboundMessageData>(string)
+        KDiscordIPC.logger.debug("Received: {}", string)
 
+        val data = json.decodeFromString<InboundMessageData>(string)
         return Message.Inbound(message.opcode, data)
     }
 }

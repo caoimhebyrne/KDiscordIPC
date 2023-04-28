@@ -22,8 +22,6 @@ class MessageChannel(
     val messages = flow {
         while (socket.isConnected) {
             val message = ByteToMessageDecoder.decode(socket.read())
-            KDiscordIPC.logger.debug("Received: {}", message)
-
             emit(message)
         }
     }
