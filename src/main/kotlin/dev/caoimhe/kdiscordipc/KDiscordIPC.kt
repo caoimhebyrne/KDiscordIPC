@@ -1,13 +1,21 @@
 package dev.caoimhe.kdiscordipc
 
 import dev.caoimhe.kdiscordipc.channel.MessageChannel
+import dev.caoimhe.kdiscordipc.channel.message.inbound.DispatchMessageData
 import dev.caoimhe.kdiscordipc.channel.message.outbound.HandshakeMessage
+import dev.caoimhe.kdiscordipc.event.data.Event
+import dev.caoimhe.kdiscordipc.event.data.impl.ReadyEventData
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.provider.SocketImplementationProvider
 import dev.caoimhe.kdiscordipc.socket.provider.impl.SystemSocketProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.slf4j.LoggerFactory
 
 /**
@@ -21,13 +29,23 @@ import org.slf4j.LoggerFactory
  */
 class KDiscordIPC(
     private val clientID: String,
-    private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO),
     private val socketImplementationProvider: SocketImplementationProvider = SystemSocketProvider,
+    val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO),
 ) {
     /**
      * Used for sending/reading messages through the socket
      */
     private val channel = MessageChannel(socketImplementationProvider.provide())
+
+    /**
+     * Used for dispatching events to listeners
+     */
+    private val _events = MutableSharedFlow<Event<*>>()
+
+    /**
+     * Used for dispatching events to listeners
+     */
+    val events = _events.asSharedFlow()
 
     /**
      * Attempts to connect to the Discord client.
@@ -45,11 +63,38 @@ class KDiscordIPC(
         // 3. Send the handshake
         channel.send(HandshakeMessage(clientID))
 
-        // 4. TODO: Dispatch events/any received information
+        // Attempt to dispatch any events/packets received
         channel.messages.collect {
-            logger.debug("Decoded: {}", it.data)
+            when (it.data) {
+                // When we receive the DISPATCH message, the client has sent us a new event!
+                is DispatchMessageData<*> -> {
+                    when (val data = it.data.data) {
+                        is ReadyEventData -> _events.emit(Event.Ready(data))
+                        else -> error("Unknown event ${it.data.event}")
+                    }
+                }
+            }
         }
     }
+
+    /**
+     * Fired when we connect to the Discord client for the first time.
+     * A helper function for [on]:
+     * ```kt
+     * ipc.on<Event.Ready> {}
+     * ```
+     */
+    inline fun onReady(crossinline callback: (ReadyEventData) -> Unit) =
+        on<Event.Ready> { callback(it.data) }
+
+    /**
+     * Fired when we receive an event from the Discord client
+     */
+    inline fun <reified T : Event<*>> on(crossinline callback: (T) -> Unit) =
+        events.filterIsInstance<T>()
+            .onEach { event ->
+                callback(event)
+            }.launchIn(scope)
 
     companion object {
         /**
