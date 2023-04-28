@@ -47,7 +47,6 @@ class KDiscordIPC(
 
         // 4. TODO: Dispatch events/any received information
         channel.messages.collect {
-            logger.debug("{}", it)
         }
     }
 
