@@ -1,6 +1,6 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
-import dev.caoimhe.kdiscordipc.channel.message.RawMessage
+import dev.caoimhe.kdiscordipc.channel.message.Message
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.Socket
 import dev.caoimhe.kdiscordipc.utils.readLittleEndianInt
@@ -46,7 +46,7 @@ class WindowsSocket : Socket {
         }
     }
 
-    override fun read(): RawMessage {
+    override fun read(): Message.Raw {
         // The first two integers are the opcode and the length
         val opcode = randomAccessFile.readLittleEndianInt()
         val length = randomAccessFile.readLittleEndianInt()
@@ -55,7 +55,7 @@ class WindowsSocket : Socket {
         val data = ByteArray(length)
         randomAccessFile.readFully(data)
 
-        return RawMessage(opcode, length, data)
+        return Message.Raw(opcode, length, data)
     }
 
     override fun write(data: ByteArray) {

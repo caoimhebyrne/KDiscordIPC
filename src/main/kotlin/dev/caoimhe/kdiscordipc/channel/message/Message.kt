@@ -2,22 +2,61 @@ package dev.caoimhe.kdiscordipc.channel.message
 
 import kotlinx.serialization.KSerializer
 
-/**
- * A message to be sent to, or received from the Discord client
- */
-open class Message<T>(
+sealed class Message {
     /**
-     * The opcode specified by Discord for this message
+     * The expected/actual opcode of this message
      */
-    val opcode: Int,
+    abstract val opcode: Int
 
     /**
-     * The JSON data to send
+     * A message being sent to the Discord client
      */
-    val data: T,
+    open class Outbound<T>(
+        override val opcode: Int,
+
+        /**
+         * The data of type [T] for this message
+         */
+        val data: T,
+
+        /**
+         * The serializer to be used for encoding this data of type [T] to JSON
+         */
+        val serializer: KSerializer<T>
+    ) : Message()
 
     /**
-     * The serializer used to encode data of type T
+     * A raw message received from the Discord client
      */
-    val serializer: KSerializer<T>,
-)
+    data class Raw(
+        override val opcode: Int,
+
+        /**
+         * The amount of bytes in this message
+         */
+        val length: Int,
+
+        /**
+         * The JSON data encoded as UTF-8
+         */
+        val data: ByteArray
+    ) : Message() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Raw
+
+            if (opcode != other.opcode) return false
+            if (length != other.length) return false
+            return data.contentEquals(other.data)
+        }
+
+        override fun hashCode(): Int {
+            var result = opcode
+            result = 31 * result + length
+            result = 31 * result + data.contentHashCode()
+            return result
+        }
+    }
+}

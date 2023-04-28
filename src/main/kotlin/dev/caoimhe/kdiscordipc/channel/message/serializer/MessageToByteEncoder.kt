@@ -25,7 +25,7 @@ object MessageToByteEncoder {
     /**
      * Converts an outgoing [Message] to a [ByteArray].
      */
-    fun <T> encode(message: Message<T>): ByteArray {
+    fun <T> encode(message: Message.Outbound<T>): ByteArray {
         val data = json.encodeToString(message.serializer, message.data)
         val bytes = data.encodeToByteArray()
 

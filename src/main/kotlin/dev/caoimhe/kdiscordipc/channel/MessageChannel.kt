@@ -25,7 +25,7 @@ class MessageChannel(
     /**
      * Attempts to send a [Message] to the Discord client through the [socket].
      */
-    fun <T> send(message: Message<T>) {
+    fun <T> send(message: Message.Outbound<T>) {
         // TODO: Error handling
 
         val encoded = MessageToByteEncoder.encode(message)

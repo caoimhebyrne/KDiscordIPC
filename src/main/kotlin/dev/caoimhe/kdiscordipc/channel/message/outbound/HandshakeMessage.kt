@@ -4,7 +4,7 @@ import dev.caoimhe.kdiscordipc.channel.message.Message
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class HandshakeMessage(clientID: String) : Message<HandshakeMessage.Data>(
+class HandshakeMessage(clientID: String) : Message.Outbound<HandshakeMessage.Data>(
     opcode = 0,
     data = Data(clientID = clientID),
     serializer = Data.serializer()

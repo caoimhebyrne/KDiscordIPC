@@ -1,6 +1,6 @@
 package dev.caoimhe.kdiscordipc.socket.impl
 
-import dev.caoimhe.kdiscordipc.channel.message.RawMessage
+import dev.caoimhe.kdiscordipc.channel.message.Message
 import dev.caoimhe.kdiscordipc.exception.SocketException
 import dev.caoimhe.kdiscordipc.socket.Socket
 import dev.caoimhe.kdiscordipc.utils.readLittleEndianInt
@@ -45,7 +45,7 @@ class JUnixSocket : Socket {
         }
     }
 
-    override fun read(): RawMessage {
+    override fun read(): Message.Raw {
         // The first two integers are the opcode, and the length.
         val opcode = socket.inputStream.readLittleEndianInt()
         val length = socket.inputStream.readLittleEndianInt()
@@ -55,7 +55,7 @@ class JUnixSocket : Socket {
         val data = ByteArray(length)
         stream.readFully(data)
 
-        return RawMessage(opcode, length, data)
+        return Message.Raw(opcode, length, data)
     }
 
     @Throws(SocketException::class)
