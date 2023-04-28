@@ -1,5 +1,6 @@
 package dev.caoimhe.kdiscordipc.channel.message.inbound
 
+import dev.caoimhe.kdiscordipc.event.data.impl.ReadyEventData
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -30,7 +31,7 @@ sealed class InboundMessageData {
             // The command will tell us what exactly to do with this message
             when (val command = element.jsonObject["cmd"]?.jsonPrimitive?.contentOrNull) {
                 // Used for dispatching events to the client
-                "DISPATCH" -> DispatchMessageData.serializer()
+                "DISPATCH" -> DispatchMessageData.selectDeserializer(element)
 
                 // TODO: Better error handling
                 else -> error("Unsupported command $command")
