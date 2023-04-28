@@ -2,24 +2,12 @@ package dev.caoimhe.kdiscordipc.channel.message
 
 import dev.caoimhe.kdiscordipc.channel.message.inbound.InboundMessageData
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-
-private val prettyJson = Json {
-    encodeDefaults = true
-    prettyPrint = true
-}
 
 sealed class Message {
     /**
      * The expected/actual opcode of this message
      */
     abstract val opcode: Int
-
-    /**
-     * A "pretty printer" for this message
-     */
-    abstract fun prettyDebugInfo(): String
 
     /**
      * A message being sent to the Discord client
@@ -36,9 +24,7 @@ sealed class Message {
          * The serializer to be used for encoding this data of type [T] to JSON
          */
         val serializer: KSerializer<T>
-    ) : Message() {
-        override fun prettyDebugInfo() = prettyJson.encodeToString(serializer, data)
-    }
+    ) : Message()
 
     /**
      * A message being received from the Discord client, after it has been parsed and serialized
@@ -50,9 +36,7 @@ sealed class Message {
          * The data associated with this message, see [InboundMessageData] for how it is de-serialized.
          */
         val data: InboundMessageData
-    ) : Message() {
-        override fun prettyDebugInfo() = prettyJson.encodeToString(data)
-    }
+    ) : Message()
 
     /**
      * A raw message received from the Discord client
@@ -70,8 +54,6 @@ sealed class Message {
          */
         val data: ByteArray
     ) : Message() {
-        override fun prettyDebugInfo() = this.toString()
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

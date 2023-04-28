@@ -27,7 +27,7 @@ object MessageToByteEncoder {
      */
     fun <T> encode(message: Message.Outbound<T>): ByteArray {
         val data = json.encodeToString(message.serializer, message.data)
-        KDiscordIPC.logger.debug("Encoding: \n{}", message.prettyDebugInfo())
+        KDiscordIPC.logger.debug("Encoding: {}", data)
 
         val bytes = data.encodeToByteArray()
 
