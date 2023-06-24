@@ -131,7 +131,19 @@ class SocketHandler(
             throw ConnectionError.NoIPCFile
 
         val base = if (platform == Platform.WINDOWS) "\\\\?\\pipe\\" else temporaryDirectory
-        val file = File(base, "discord-ipc-${index}")
+        var file = File(base, "discord-ipc-${index}")
+
+        if (platform == Platform.LINUX) {
+            // Snap support
+            if (!file.exists()) {
+                file = File(base, "snap.discord/discord-ipc-${index}")
+            }
+            // Flatpak support
+            if (!file.exists()) {
+                file = File(base, "app/com.discordapp.Discord/discord-ipc-${index}")
+            }
+        }
+
         return file.takeIf { it.exists() } ?: findIPCFile(index + 1)
     }
 
