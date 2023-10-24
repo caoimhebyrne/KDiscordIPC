@@ -44,7 +44,8 @@ class SocketHandler(
                 ByteToMessageDecoder.decode(rawPacket)?.let { emit(it) }
             } catch (e: DecodeError) {
                 if (e is DecodeError.InvalidData) {
-                    throw ConnectionError.Disconnected
+                    KDiscordIPC.logger.error("Recieved invalid data, assuming that Discord has disconnected from the socket.")
+                    disconnect()
                 }
             } catch (e: IOException) {
                 if (!isDisconnectionException(e)) {
