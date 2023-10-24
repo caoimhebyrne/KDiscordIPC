@@ -12,6 +12,10 @@ object ByteToMessageDecoder {
     fun decode(packet: RawPacket): InboundPacket? {
         try {
             val data = packet.data.decodeToString()
+            if (data.isEmpty()) {
+                throw DecodeError.InvalidData
+            }
+
             KDiscordIPC.logger.debug("Decoding: $data")
 
             return json.decodeFromString<InboundPacket>(data)
