@@ -11,7 +11,7 @@ import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.VoiceSettingsUpdateEvent
-import dev.cbyrne.kdiscordipc.core.event.impl.internal.DisconnectedEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket

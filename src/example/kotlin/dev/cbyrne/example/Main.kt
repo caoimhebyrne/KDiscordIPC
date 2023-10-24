@@ -3,7 +3,7 @@ package dev.cbyrne.example
 import dev.cbyrne.kdiscordipc.KDiscordIPC
 import dev.cbyrne.kdiscordipc.core.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.*
-import dev.cbyrne.kdiscordipc.core.event.impl.internal.DisconnectedEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.DisconnectedEvent
 import dev.cbyrne.kdiscordipc.data.activity.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
