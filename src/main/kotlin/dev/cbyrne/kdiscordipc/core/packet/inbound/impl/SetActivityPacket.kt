@@ -15,12 +15,12 @@ data class SetActivityPacket(
 ) : CommandPacket() {
     @Serializable
     data class Data(
-        val details: String?,
-        val state: String?,
+        val details: String? = null,
+        val state: String? = null,
         val timestamps: Activity.Timestamps? = null,
         val assets: Activity.Assets? = null,
         val party: Activity.Party? = null,
-        val buttons: List<String>?,
+        val buttons: List<String> = emptyList(),
         val name: String,
         @SerialName("application_id")
         val applicationId: String,
@@ -31,6 +31,6 @@ data class SetActivityPacket(
     @Serializable
     data class Metadata(
         @SerialName("button_urls")
-        val buttonUrls: List<String>
+        val buttonUrls: List<String> = emptyList()
     )
 }
