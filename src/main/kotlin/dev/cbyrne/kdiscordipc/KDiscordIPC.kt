@@ -46,10 +46,6 @@ class KDiscordIPC(
     socketSupplier: () -> Socket = SocketProvider::systemDefault,
     val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 ) {
-    companion object {
-        internal val logger = LogManager.getLogger("KDiscordIPC")
-    }
-
     private val socketHandler = SocketHandler(scope, socketSupplier) {
         scope.launch {
             this@KDiscordIPC._events.emit(DisconnectedEvent())
@@ -137,5 +133,9 @@ class KDiscordIPC(
         writePacket(packet, nonce)
 
         return packets.filterIsInstance<T>().first { it.nonce == nonce }
+    }
+
+    companion object {
+        internal val logger = LogManager.getLogger("KDiscordIPC")
     }
 }
