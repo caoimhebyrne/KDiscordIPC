@@ -1,38 +1,43 @@
-plugins {
-    kotlin("jvm") version "1.6.20"
-    kotlin("plugin.serialization") version "1.6.20"
+val kotlinxCoroutinesVersion: String by project
+val kotlinxSerializationVersion: String by project
+val log4j2Version: String by project
 
-    `maven-publish`
+plugins {
+    kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.10"
+    id("maven-publish")
 }
 
 group = "dev.cbyrne"
 version = "0.2.3"
 
-repositories {
-    mavenCentral()
-}
-
 sourceSets {
     create("example")
 }
 
-val exampleImplementation by configurations
+repositories {
+    mavenCentral()
+}
+
+val exampleImplementation: Configuration by configurations
 exampleImplementation.extendsFrom(configurations.implementation.get())
 
 dependencies {
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlinx.serialization)
-    implementation(libs.kotlinx.coroutines)
+    // Add Kotlin
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
 
-    implementation(libs.slf4j.api)
-    implementation(libs.junixsocket.core)
+    // JUnix
+    implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2") // To be removed with #35
 
+    // Logging library
+    implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
+
+    // Example implementation
     exampleImplementation(sourceSets.main.get().output)
-
-    // Log4J is only used in the example project as a backend for SLF4j
-    exampleImplementation(libs.log4j.core)
-    exampleImplementation(libs.log4j.api)
-    exampleImplementation(libs.log4j.slf4j)
+    exampleImplementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
+    exampleImplementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
+    exampleImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
 }
 
 publishing {
@@ -41,9 +46,4 @@ publishing {
             from(components["java"])
         }
     }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
-    kotlinOptions.freeCompilerArgs += "-opt-in=kotlinx.serialization.InternalSerializationApi"
 }
