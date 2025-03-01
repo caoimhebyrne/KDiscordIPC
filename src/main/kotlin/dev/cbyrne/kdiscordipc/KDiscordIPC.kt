@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.slf4j.LoggerFactory
+import org.apache.logging.log4j.LogManager
 import java.util.*
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.SubscribePacket as InboundSubscribePacket
 
@@ -47,7 +47,7 @@ class KDiscordIPC(
     val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 ) {
     companion object {
-        internal val logger = LoggerFactory.getLogger("KDiscordIPC")
+        internal val logger = LogManager.getLogger("KDiscordIPC")
     }
 
     private val socketHandler = SocketHandler(scope, socketSupplier) {
@@ -101,16 +101,14 @@ class KDiscordIPC(
         }
     }
 
-    @JvmName("onEvent")
-    suspend inline fun <reified T : Event> on(noinline consumer: suspend T.() -> Unit) =
+    inline fun <reified T : Event> on(noinline block: suspend T.() -> Unit) =
         events.filterIsInstance<T>().onEach { event ->
-            scope.launch { consumer(event) }
+            scope.launch { block(event) }
         }.launchIn(scope)
 
-    @JvmName("onPacket")
-    suspend inline fun <reified T : InboundPacket> on(noinline consumer: suspend T.() -> Unit) =
+    inline fun <reified T : InboundPacket> onPacket(noinline block: suspend T.() -> Unit) =
         packets.filterIsInstance<T>().onEach { event ->
-            scope.launch { consumer(event) }
+            scope.launch { block(event) }
         }.launchIn(scope)
 
     /**
