@@ -1,3 +1,18 @@
+# MAINTENANCE NOTE
+
+Hi everyone!
+
+KDiscordIPC is entering maintenance-only. This means it will not be receiving any new features, and will only be updated for major bug patches.
+
+That being said, **I'm working on a new library**: JDiscordIPC. It aims to be more robust, easier to use, and lightweight. It's still in early development, but once it's in a usable state I will be archiving this repository.
+
+Thanks for your support, and I hope to see you all over at the JDiscordIPC repository.
+
+Much love,
+Caoimhe.
+
+https://github.com/caoimhebyrne/JDiscordIPC
+
 # KDiscordIPC
 
 ``Current version: 0.2.2``
