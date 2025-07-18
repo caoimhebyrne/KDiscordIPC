@@ -5,7 +5,7 @@ import dev.cbyrne.kdiscordipc.core.error.ConnectionError
 import dev.cbyrne.kdiscordipc.core.error.DecodeError
 import dev.cbyrne.kdiscordipc.core.packet.pipeline.ByteToMessageDecoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
-import dev.cbyrne.kdiscordipc.core.util.Platform
+import dev.cbyrne.kdiscordipc.core.util.Platform.WINDOWS
 import dev.cbyrne.kdiscordipc.core.util.platform
 import dev.cbyrne.kdiscordipc.core.util.temporaryDirectory
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +33,7 @@ class SocketHandler(
 ) {
     private val socket = socketSupplier()
     private val outboundBytes = MutableSharedFlow<ByteArray>()
+    private val possibleUnixPaths = listOf("", "/app/com.discordapp.Discord/", "/snap.discord/", "/snap.discord-canary/", "/snap.discord-ptb/")
 
     val connected: Boolean
         get() = socket.connected
@@ -86,11 +87,7 @@ class SocketHandler(
         if (socket.connected)
             throw ConnectionError.AlreadyConnected
 
-        try {
-            socket.connect(findIPCFile(index))
-        } catch (e: IOException) {
-            throw ConnectionError.Failed
-        }
+        socket.connect(findIPCFile(index))
     }
 
     /**
@@ -121,19 +118,41 @@ class SocketHandler(
     /**
      * Attempts to find an IPC file to connect with the Discord client's IPC server.
      *
-     * This is a recursive function, if no [index] is supplied, it will be defaulted to 0.
-     * If ``$TEMP/discord-ipc-0`` doesn't exist, it will try ipc-1...ipc-9 until it finds one.
+     * This function recursively searches for IPC files with names `discord-ipc-[index]` in various directories.
+     * If no [index] is supplied, it will default to 0. It first checks for the file with `discord-ipc-0`,
+     * then `discord-ipc-1`, and so on, until it finds an existing IPC file or exceeds the maximum index of [MAX_IPC].
      *
-     * @throws ConnectionError.NoIPCFile If an IPC file isn't found after 9 attempts.
+     * If no file is found in the current path, it moves to the next path and starts over with index 0.
+     * The search stops when the IPC file is found or all paths have been exhausted.
+     *
+     * The search will attempt to find IPC files at the following directories (depending on the platform):
+     * - For Windows: `\\\\?\\pipe\\`
+     * - For Unix-like platforms: various predefined paths stored in [possibleUnixPaths].
+     *
+     * @param index The current index for the IPC file search, starting at 0. This is incremented recursively until a file is found or the max index is reached.
+     * @param path The current path index to check in [possibleUnixPaths]. If the current path doesn't contain an IPC file, the function will move to the next path.
+     *
+     * @throws ConnectionError.NoIPCFile If no IPC file is found after searching all paths and exceeding the maximum index.
      */
     @Throws(ConnectionError.NoIPCFile::class)
-    private fun findIPCFile(index: Int = 0): File {
-        if (index > 9)
-            throw ConnectionError.NoIPCFile
+    private fun findIPCFile(index: Int = 0, path: Int = 0): File {
+        if (index > MAX_IPC) {
+            if (platform != WINDOWS)
+            // If the ipc index is >MAX_IPC, reset to 0 and try the next unix path
+                return findIPCFile(index = 0, path = path + 1)
 
-        val base = if (platform == Platform.WINDOWS) "\\\\?\\pipe\\" else temporaryDirectory
-        val file = File(base, "discord-ipc-${index}")
-        return file.takeIf { it.exists() } ?: findIPCFile(index + 1)
+            throw ConnectionError.NoIPCFile
+        }
+
+        val basePath = when (platform) {
+            WINDOWS -> "\\\\?\\pipe\\"
+            else -> "${temporaryDirectory}/${possibleUnixPaths[path]}"
+        }
+
+        val file = File(basePath, "discord-ipc-$index")
+
+        return file.takeIf { it.exists() }
+            ?: findIPCFile(index + 1, path)
     }
 
     /**
@@ -142,4 +161,9 @@ class SocketHandler(
     private fun isDisconnectionException(e: IOException) =
         e is SocketException ||
         e.message?.contains("Stream Closed", true) == true || e.message?.contains("The pipe is being closed", true) == true
+
+    companion object {
+        // The maximum index for the IPC
+        private const val MAX_IPC = 9
+    }
 }

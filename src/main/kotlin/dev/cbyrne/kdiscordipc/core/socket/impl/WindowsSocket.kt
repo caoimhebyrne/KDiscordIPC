@@ -29,7 +29,6 @@ class WindowsSocket : Socket {
         _connected = false
     }
 
-    @Suppress("ControlFlowWithEmptyBody")
     override fun read(): RawPacket {
         while (_connected && randomAccessFile.length() == 0L) {
             Thread.sleep(50L)

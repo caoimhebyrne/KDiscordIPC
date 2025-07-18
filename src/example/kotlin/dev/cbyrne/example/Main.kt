@@ -37,7 +37,7 @@ suspend fun main() {
         ipc.subscribe(DiscordEvent.ActivitySpectate)
 
         // Get a specific user by ID
-        val user = ipc.userManager.getUser("843135686173392946")
+        val user = ipc.userManager.getUser(data.user.id)
         logger.info("User by ID: $user")
 
         // Get the user's friend list

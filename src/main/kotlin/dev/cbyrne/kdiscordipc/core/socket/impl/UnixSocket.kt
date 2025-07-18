@@ -7,7 +7,10 @@ import org.newsclub.net.unix.AFUNIXSocket
 import org.newsclub.net.unix.AFUNIXSocketAddress
 import java.io.DataInputStream
 import java.io.File
+import java.net.UnixDomainSocketAddress
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.channels.SocketChannel
 
 class UnixSocket : Socket {
     private val socket = AFUNIXSocket.newInstance()
