@@ -12,6 +12,7 @@ import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.VoiceSettingsUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.DisconnectedEvent
+import dev.cbyrne.kdiscordipc.core.event.impl.VoiceChannelSelectEvent
 import dev.cbyrne.kdiscordipc.core.packet.inbound.InboundPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.DispatchEventPacket
 import dev.cbyrne.kdiscordipc.core.packet.inbound.impl.ErrorPacket
@@ -91,6 +92,7 @@ class KDiscordIPC(
             when (it) {
                 is DispatchEventPacket.Ready -> _events.emit(ReadyEvent(it.data))
                 is DispatchEventPacket.UserUpdate -> _events.emit(CurrentUserUpdateEvent(it.data))
+                is DispatchEventPacket.VoiceChannelSelect -> _events.emit(VoiceChannelSelectEvent(it.data))
                 is DispatchEventPacket.VoiceSettingsUpdate -> _events.emit(VoiceSettingsUpdateEvent(it.data))
                 is DispatchEventPacket.ActivityJoin -> _events.emit(ActivityJoinEvent(it.data))
                 is DispatchEventPacket.ActivityInvite -> _events.emit(ActivityInviteEvent(it.data))

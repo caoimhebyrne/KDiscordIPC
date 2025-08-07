@@ -25,6 +25,11 @@ abstract class DispatchEventPacket(
     ) : DispatchEventPacket()
 
     @Serializable
+    data class VoiceChannelSelect(
+        override val data: VoiceChannelSelectEventData
+    ) : DispatchEventPacket()
+
+    @Serializable
     data class VoiceSettingsUpdate(
         override val data: VoiceSettings
     ) : DispatchEventPacket()
