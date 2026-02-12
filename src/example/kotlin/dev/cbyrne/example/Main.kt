@@ -20,8 +20,8 @@ suspend fun main() {
 
         // Set the user's activity (a.k.a. rich presence)
         ipc.activityManager.setActivity("Hello") {
-            largeImage("https://avatars.githubusercontent.com/u/71222289?v=4", "KDiscordIPC")
-            smallImage("https://avatars.githubusercontent.com/u/71222289?v=4", "Testing")
+            largeImage("https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/62fddf0fde45a8baedcc7ee5_847541504914fd33810e70a0ea73177e%20(2)-1.png", "KDiscordIPC")
+            smallImage("https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/62fddf0fde45a8baedcc7ee5_847541504914fd33810e70a0ea73177e%20(2)-1.png", "Testing")
 
             party(UUID.randomUUID().toString(), 1, 2)
             secrets(UUID.randomUUID().toString())

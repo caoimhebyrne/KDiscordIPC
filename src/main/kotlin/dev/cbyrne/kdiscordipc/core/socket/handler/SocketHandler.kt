@@ -19,6 +19,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.net.SocketException
+import java.nio.file.Path
+import kotlin.io.path.div
+import kotlin.io.path.exists
 
 /**
  * A bridge between [KDiscordIPC] and the Discord IPC server.
@@ -80,14 +83,14 @@ class SocketHandler(
      * @throws ConnectionError.NoIPCFile If an IPC file isn't found after 9 attempts.
      * @throws ConnectionError.AlreadyConnected If the socket is already connected.
      *
-     * @see findIPCFile
+     * @see findIPCPath
      */
     fun connect(index: Int = 0) {
         if (socket.connected)
             throw ConnectionError.AlreadyConnected
 
         try {
-            socket.connect(findIPCFile(index))
+            socket.connect(findIPCPath(index).toFile())
         } catch (e: IOException) {
             throw ConnectionError.Failed
         }
@@ -119,6 +122,38 @@ class SocketHandler(
     }
 
     /**
+     * A list of subdirectories of the temporary directory that the discord-ipc file may be present in.
+     */
+    private val temporarySubdirectories = listOf(
+        // Flatpak
+        listOf("app", "com.discordapp.Discord"),
+        listOf("app", "com.discordapp.DiscordCanary"),
+
+        // Snap
+        listOf("snap.discord"),
+        listOf("snap.discord-canary"),
+        listOf("snap.discord-ptb"),
+    )
+
+    /**
+     * @see findIPCPath
+     */
+    private fun findIPCPath(index: Int): Path {
+        // On Windows, we should immediately have some Discord IPC file within the pipe device.
+        return if (platform == Platform.WINDOWS) {
+            findIPCPath(index, Path.of("\\\\.\\pipe\\"))
+        } else {
+            // The IPC file may be in the temporary directory itself. If not, then we should check some common
+            // subdirectories.
+            findIPCPath(index, Path.of(temporaryDirectory))?.let { return it }
+
+            temporarySubdirectories.firstNotNullOfOrNull { directory ->
+                findIPCPath(index, Path.of(temporaryDirectory, *directory.toTypedArray()))
+            }
+        } ?: throw ConnectionError.NoIPCFile
+    }
+
+    /**
      * Attempts to find an IPC file to connect with the Discord client's IPC server.
      *
      * This is a recursive function, if no [index] is supplied, it will be defaulted to 0.
@@ -126,14 +161,13 @@ class SocketHandler(
      *
      * @throws ConnectionError.NoIPCFile If an IPC file isn't found after 9 attempts.
      */
-    @Throws(ConnectionError.NoIPCFile::class)
-    private fun findIPCFile(index: Int = 0): File {
-        if (index > 9)
-            throw ConnectionError.NoIPCFile
+    private fun findIPCPath(index: Int = 0, tempDirectory: Path): Path? {
+        if (index > 9) {
+            return null
+        }
 
-        val base = if (platform == Platform.WINDOWS) "\\\\?\\pipe\\" else temporaryDirectory
-        val file = File(base, "discord-ipc-${index}")
-        return file.takeIf { it.exists() } ?: findIPCFile(index + 1)
+        val ipcFilePath = tempDirectory / "discord-ipc-${index}"
+        return ipcFilePath.takeIf { it.exists() } ?: findIPCPath(index + 1, tempDirectory)
     }
 
     /**
