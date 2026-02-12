@@ -20,6 +20,7 @@ import java.io.File
 import java.io.IOException
 import java.net.SocketException
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.div
 import kotlin.io.path.exists
 
@@ -140,16 +141,17 @@ class SocketHandler(
      */
     private fun findIPCPath(index: Int): Path {
         // On Windows, we should immediately have some Discord IPC file within the pipe device.
-        return if (platform == Platform.WINDOWS) {
-            findIPCPath(index, Path.of("\\\\.\\pipe\\"))
-        } else {
-            // The IPC file may be in the temporary directory itself. If not, then we should check some common
-            // subdirectories.
-            findIPCPath(index, Path.of(temporaryDirectory))?.let { return it }
+        if (platform == Platform.WINDOWS) {
+            return findIPCPath(index, Paths.get("\\\\.\\pipe\\"))
+                ?: throw ConnectionError.NoIPCFile
+        }
 
-            temporarySubdirectories.firstNotNullOfOrNull { directory ->
-                findIPCPath(index, Path.of(temporaryDirectory, *directory.toTypedArray()))
-            }
+        // The IPC file may be in the temporary directory itself. If not, then we should check some common
+        // subdirectories.
+        findIPCPath(index, Paths.get(temporaryDirectory))?.let { return it }
+
+        return temporarySubdirectories.firstNotNullOfOrNull { directory ->
+            findIPCPath(index, Paths.get(temporaryDirectory, *directory.toTypedArray()))
         } ?: throw ConnectionError.NoIPCFile
     }
 
