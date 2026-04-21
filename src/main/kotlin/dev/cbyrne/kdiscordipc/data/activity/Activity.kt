@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.IntArraySerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.*
 
@@ -19,7 +21,9 @@ data class Activity(
     var party: Party? = null,
     var secrets: Secrets? = null,
     var buttons: MutableList<Button>? = null,
-    var instance: Boolean? = false
+    var instance: Boolean? = false,
+    @SerialName("status_display_type")
+    var activityStatusDisplayType: ActivityStatusDisplayType? = null
 ) {
     @Serializable
     data class Timestamps(
@@ -82,6 +86,50 @@ data class Activity(
         var label: String,
         var url: String
     )
+
+    @Serializable(ActivityStatusDisplayType.ActivityStatusDisplayTypeSerializer::class)
+    enum class ActivityStatusDisplayType {
+        /**
+         * Shows the application's name in the user's status text.
+         * <p>
+         * Example: "Listening to Spotify"
+         */
+        APPLICATION_NAME,
+
+        /**
+         * Shows the activity's state field in the user's status text.
+         * <p>
+         * Example: "Listening to Rick Astley"
+         */
+        STATE,
+
+        /**
+         * Shows the activity's details field in the user's status text.
+         * <p>
+         * Example: "Listening to Never Gonna Give You Up"
+         */
+        DETAILS;
+
+        class ActivityStatusDisplayTypeSerializer : KSerializer<ActivityStatusDisplayType> {
+            override val descriptor: SerialDescriptor =
+                PrimitiveSerialDescriptor(
+                    "dev.cbyrne.kdiscordipc.data.activity.Activity.ActivityStatusDisplayType.ActivityStatusDisplayTypeSerializer",
+                    PrimitiveKind.INT
+                )
+
+            override fun deserialize(decoder: Decoder): ActivityStatusDisplayType {
+                return ActivityStatusDisplayType.values()[decoder.decodeInt()]
+            }
+
+            override fun serialize(
+                encoder: Encoder,
+                value: ActivityStatusDisplayType
+            ) {
+                encoder.encodeInt(value.ordinal)
+            }
+
+        }
+    }
 }
 
 fun activity(
@@ -123,4 +171,8 @@ fun Activity.party(id: String, currentSize: Int, maxSize: Int) {
 
 fun Activity.secrets(join: String? = null, match: String? = null, spectate: String? = null) {
     this.secrets = Activity.Secrets(join, match, spectate)
+}
+
+fun Activity.statusDisplayType(statusDisplayType: Activity.ActivityStatusDisplayType?) {
+    this.activityStatusDisplayType = statusDisplayType
 }
